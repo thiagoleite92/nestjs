@@ -5,6 +5,7 @@ CREATE TYPE "Role" AS ENUM ('ADMIN', 'PILOT', 'CLIENT');
 CREATE TABLE "TB_USERS" (
     "id" TEXT NOT NULL,
     "email" TEXT NOT NULL,
+    "name" TEXT NOT NULL,
     "password" TEXT NOT NULL,
     "is_active" BOOLEAN NOT NULL DEFAULT true,
     "role" "Role" NOT NULL DEFAULT 'CLIENT',

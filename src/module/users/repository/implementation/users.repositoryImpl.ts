@@ -1,9 +1,9 @@
-import { PrismaService } from './../../database/prisma.service';
+import { PrismaService } from '../../../../services/prisma.service';
 import { Injectable } from '@nestjs/common';
 import { User } from '@prisma/client';
-import { CreateUserDto } from './dto/create-user.dto';
-import { IUserRepository } from './repository/users.repository';
-import { AllUsersResponseDto } from './dto/all-users.dto';
+import { CreateUserDto } from '../../dto/create-user.dto';
+import { IUserRepository } from '../users.repository';
+import { AllUsersResponseDto } from '../../dto/all-users.dto';
 
 @Injectable()
 export class UserRepositoryImpl implements IUserRepository {
@@ -32,7 +32,8 @@ export class UserRepositoryImpl implements IUserRepository {
       await this.prisma.user.create({ data: user });
       return 'Usuário criado com sucesso';
     } catch (err) {
-      return err;
+      console.log(err);
+      return 'Houve um error ao criar um usuário';
     }
   }
 
@@ -41,6 +42,14 @@ export class UserRepositoryImpl implements IUserRepository {
   }
   async updateUser(id: string, user: User): Promise<string> {
     throw new Error('Method not implemented.');
+  }
+
+  async findUserByEmail(email: string): Promise<User | null> {
+    return await this.prisma.user.findFirst({
+      where: {
+        email,
+      },
+    });
   }
 
   exclude<User, Key extends keyof User>(
