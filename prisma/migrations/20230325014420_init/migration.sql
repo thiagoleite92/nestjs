@@ -1,0 +1,66 @@
+-- CreateEnum
+CREATE TYPE "Role" AS ENUM ('ADMIN', 'PILOT', 'CLIENT');
+
+-- CreateTable
+CREATE TABLE "TB_USERS" (
+    "id" TEXT NOT NULL,
+    "email" TEXT NOT NULL,
+    "password" TEXT NOT NULL,
+    "is_active" BOOLEAN NOT NULL DEFAULT true,
+    "role" "Role" NOT NULL DEFAULT 'CLIENT',
+
+    CONSTRAINT "TB_USERS_pkey" PRIMARY KEY ("id")
+);
+
+-- CreateTable
+CREATE TABLE "TB_ROUTES" (
+    "id" TEXT NOT NULL,
+    "origin" TEXT NOT NULL,
+    "destiny" TEXT NOT NULL,
+    "duration" INTEGER NOT NULL,
+
+    CONSTRAINT "TB_ROUTES_pkey" PRIMARY KEY ("id")
+);
+
+-- CreateTable
+CREATE TABLE "TB_AIRLINES" (
+    "id" TEXT NOT NULL,
+    "airline" TEXT NOT NULL,
+
+    CONSTRAINT "TB_AIRLINES_pkey" PRIMARY KEY ("id")
+);
+
+-- CreateTable
+CREATE TABLE "TB_FLIGHTS" (
+    "id" TEXT NOT NULL,
+    "price" MONEY NOT NULL,
+    "departure_date" TIMESTAMP(3) NOT NULL,
+    "route_id" TEXT NOT NULL,
+    "pilot_id" TEXT NOT NULL,
+
+    CONSTRAINT "TB_FLIGHTS_pkey" PRIMARY KEY ("id")
+);
+
+-- CreateTable
+CREATE TABLE "TB_FLIGHTS_AIRLINES" (
+    "id" TEXT NOT NULL,
+    "flight_id" TEXT NOT NULL,
+    "airline_id" TEXT NOT NULL,
+
+    CONSTRAINT "TB_FLIGHTS_AIRLINES_pkey" PRIMARY KEY ("id")
+);
+
+-- CreateIndex
+CREATE UNIQUE INDEX "TB_USERS_email_key" ON "TB_USERS"("email");
+
+-- AddForeignKey
+ALTER TABLE "TB_FLIGHTS" ADD CONSTRAINT "TB_FLIGHTS_route_id_fkey" FOREIGN KEY ("route_id") REFERENCES "TB_ROUTES"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "TB_FLIGHTS" ADD CONSTRAINT "TB_FLIGHTS_pilot_id_fkey" FOREIGN KEY ("pilot_id") REFERENCES "TB_USERS"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "TB_FLIGHTS_AIRLINES" ADD CONSTRAINT "TB_FLIGHTS_AIRLINES_flight_id_fkey" FOREIGN KEY ("flight_id") REFERENCES "TB_FLIGHTS"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "TB_FLIGHTS_AIRLINES" ADD CONSTRAINT "TB_FLIGHTS_AIRLINES_airline_id_fkey" FOREIGN KEY ("airline_id") REFERENCES "TB_AIRLINES"("id") ON DELETE RESTRICT ON UPDATE CASCADE;

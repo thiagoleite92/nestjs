@@ -1,0 +1,70 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id       String   @id @default(uuid())
+  email    String   @unique
+  password String
+  isActive Boolean  @default(true) @map("is_active")
+  role     Role     @default(CLIENT)
+  Flight   Flight[]
+
+  @@map("TB_USERS")
+}
+
+model Route {
+  id       String   @id @default(uuid())
+  origin   String
+  destiny  String
+  duration Int
+  Flight   Flight[]
+
+  @@map("TB_ROUTES")
+}
+
+model Airline {
+  id            String          @id @default(uuid())
+  airline       String
+  FlightAirline FlightAirline[]
+
+  @@map("TB_AIRLINES")
+}
+
+model Flight {
+  id            String          @id @default(uuid())
+  price         Decimal         @db.Money
+  departureDate DateTime        @map("departure_date")
+  routeId       String          @map("route_id")
+  userId        String          @map("pilot_id")
+  FlightAirline FlightAirline[]
+
+  route Route @relation(fields: [routeId], references: [id])
+  user  User  @relation(fields: [userId], references: [id])
+
+  @@map("TB_FLIGHTS")
+}
+
+model FlightAirline {
+  id        String  @id @default(uuid())
+  flightId  String  @map("flight_id")
+  airlineId String  @map("airline_id")
+  flight    Flight  @relation(fields: [flightId], references: [id])
+  airline   Airline @relation(fields: [airlineId], references: [id])
+
+  @@map("TB_FLIGHTS_AIRLINES")
+}
+
+enum Role {
+  ADMIN
+  PILOT
+  CLIENT
+}
