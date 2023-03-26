@@ -1,23 +1,26 @@
-import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
+import { ConflictException, Injectable } from '@nestjs/common';
+import { BcryptService } from '../shared/bcrypt.service';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { UserRepositoryImpl } from './repository/implementation/users.repositoryImpl';
 
 @Injectable()
 export class UsersService {
-  constructor(private userRepository: UserRepositoryImpl) {}
+  constructor(
+    private userRepository: UserRepositoryImpl,
+    private bcrypt: BcryptService,
+  ) {}
 
   async create(createUserDto: CreateUserDto) {
     if (await this.findByEmail(createUserDto.email)) {
-      throw new HttpException(
-        {
-          message: 'Email já registrado',
-        },
-        HttpStatus.CONFLICT,
-      );
+      throw new ConflictException({
+        message: 'Email já registrado',
+      });
     }
 
-    createUserDto.password = '123456789';
+    createUserDto.password = await this.bcrypt.hashPassword(
+      createUserDto.password,
+    );
 
     return this.userRepository.saveUser(createUserDto);
   }
