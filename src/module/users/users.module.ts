@@ -8,7 +8,7 @@ import { SharedModule } from '../shared/shared.module';
 @Module({
   imports: [SharedModule],
   controllers: [UsersController],
-  providers: [UsersService, UserRepositoryImpl, PrismaService],
+  providers: [UsersService, UserRepositoryImpl],
   exports: [UsersService, UserRepositoryImpl],
 })
 export class UsersModule {}
