@@ -11,35 +11,27 @@ export class AuthService {
     private jwtService: JwtService,
     private bcrypt: BcryptService,
   ) {}
-  async validarUsuario(email: string, password: string): Promise<any> {
+
+  async validateUser(email: string, password: string): Promise<any> {
     const user = await this.usersService.findByEmail(email);
 
     if (!user) {
       throw new UnauthorizedException('Usuário ou Senha Inválidos');
     }
     if (await this.bcrypt.comparePassword(password, user.password)) {
-      return await this.gerarToken(user);
+      return user
     }
     throw new UnauthorizedException('Usuário ou Senha Inválidos');
   }
 
-  async gerarToken({ email, id, role, name }: User) {
-    const token = await this.jwtService.sign(
-      { email, id, role, name },
-      {
-        secret: 'topSecret512',
-        expiresIn: '600s',
-      },
-    );
+  async generateToken({ name, role, email, id }: User):Promise<any> {
+   const payload = {
+    sub: id, email
+   }
 
     return {
-      accessToken: token,
-      user: {
-        email,
-        id,
-        role,
-        name,
-      },
-    };
+    token:  this.jwtService.sign(payload),
+      user: {email, name, role, id}
+    }
   }
 }
