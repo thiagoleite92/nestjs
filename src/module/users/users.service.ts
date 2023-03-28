@@ -1,4 +1,8 @@
-import { ConflictException, Injectable } from '@nestjs/common';
+import {
+  ConflictException,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import { BcryptService } from '../shared/bcrypt.service';
 import { AllUsersResponseDto } from './dto/all-users.dto';
 import { CreateUserDto } from './dto/create-user.dto';
@@ -11,6 +15,16 @@ export class UsersService {
     private userRepository: UserRepositoryImpl,
     private bcrypt: BcryptService,
   ) {}
+
+  async findAll(): Promise<AllUsersResponseDto[]> {
+    const users = await this.userRepository.getAll();
+
+    users.forEach((user) => {
+      this.excludeKeys(user, ['password']);
+    });
+
+    return users;
+  }
 
   async create(createUserDto: CreateUserDto) {
     if (await this.findByEmail(createUserDto.email)) {
@@ -26,27 +40,22 @@ export class UsersService {
     return this.userRepository.saveUser(createUserDto);
   }
 
-  async findAll(): Promise<AllUsersResponseDto[]> {
-    const users = await this.userRepository.getAll()
+  async update(userId: string, updateUserDto: UpdateUserDto): Promise<string> {
+    if (await this.findByEmail(userId)) {
+      throw new NotFoundException({
+        message: 'Usuário não encontrado',
+      });
+    }
 
-    users.forEach((user) => {
-      this.excludeKeys(user, ['password']);
-    });
+    if (updateUserDto.password) {
+      updateUserDto.password = await this.bcrypt.hashPassword(
+        updateUserDto.password,
+      );
+    }
 
+    await this.userRepository.updateUser(userId, updateUserDto);
 
-    return users;
-  }
-
-  findOne(id: number) {
-    return `This action returns a #${id} user`;
-  }
-
-  update(id: number, updateUserDto: UpdateUserDto) {
-    return `This action updates a #${id} user`;
-  }
-
-  remove(id: number) {
-    return `This action removes a #${id} user`;
+    return 'Usuário atualizado com sucesso.';
   }
 
   async findByEmail(email: string) {
