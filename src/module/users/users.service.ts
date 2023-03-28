@@ -1,5 +1,6 @@
 import { ConflictException, Injectable } from '@nestjs/common';
 import { BcryptService } from '../shared/bcrypt.service';
+import { AllUsersResponseDto } from './dto/all-users.dto';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { UserRepositoryImpl } from './repository/implementation/users.repositoryImpl';
@@ -25,8 +26,15 @@ export class UsersService {
     return this.userRepository.saveUser(createUserDto);
   }
 
-  async findAll() {
-    return await this.userRepository.getAll();
+  async findAll(): Promise<AllUsersResponseDto[]> {
+    const users = await this.userRepository.getAll()
+
+    users.forEach((user) => {
+      this.excludeKeys(user, ['password']);
+    });
+
+
+    return users;
   }
 
   findOne(id: number) {
@@ -43,5 +51,15 @@ export class UsersService {
 
   async findByEmail(email: string) {
     return await this.userRepository.findUserByEmail(email);
+  }
+
+  excludeKeys<User, Key extends keyof User>(
+    user: User,
+    keys: Key[],
+  ): Omit<User, Key> {
+    for (const key of keys) {
+      delete user[key];
+    }
+    return user;
   }
 }

@@ -11,27 +11,38 @@ datasource db {
 }
 
 model User {
-  id       String   @id @default(uuid())
-  email    String   @unique
-  name     String
-  password String
-  isActive Boolean  @default(true) @map("is_active")
-  role     Role     @default(CLIENT)
-  createdAt DateTime @default(now())
+  id        String    @id @default(uuid())
+  email     String    @unique
+  name      String
+  password  String
+  isActive  Boolean   @default(true) @map("is_active")
+  role      Role      @default(CLIENT)
+  createdAt DateTime  @default(now())
   updatedAt DateTime? @updatedAt
-  Flight   Flight[]
+  Flight    Flight[]
 
   @@map("TB_USERS")
 }
 
-model Route {
-  id       String   @id @default(uuid())
-  origin   String
-  destiny  String
-  durationEstimated Int @map("duration_estimated")
-  createdAt DateTime @default(now())
+model Pilot {
+  id        String    @id @default(uuid())
+  name      String
+  CNP       String
+  createdAt DateTime  @default(now())
   updatedAt DateTime? @updatedAt
-  Flight   Flight[]
+  Flight    Flight[]
+
+  @@map("TB_PILOTS")
+}
+
+model Route {
+  id                String    @id @default(uuid())
+  origin            String
+  destiny           String
+  durationEstimated Int       @map("duration_estimated")
+  createdAt         DateTime  @default(now())
+  updatedAt         DateTime? @updatedAt
+  Flight            Flight[]
 
   @@map("TB_ROUTES")
 }
@@ -39,8 +50,8 @@ model Route {
 model Airline {
   id            String          @id @default(uuid())
   airline       String
-  createdAt DateTime @default(now())
-  updatedAt DateTime? @updatedAt
+  createdAt     DateTime        @default(now())
+  updatedAt     DateTime?       @updatedAt
   FlightAirline FlightAirline[]
 
   @@map("TB_AIRLINES")
@@ -51,24 +62,26 @@ model Flight {
   price         Decimal         @db.Money
   departureDate DateTime        @map("departure_date")
   routeId       String          @map("route_id")
-  userId        String          @map("pilot_id")
-  createdAt DateTime @default(now())
-  updatedAt DateTime? @updatedAt
+  userId        String          @map("user_id")
+  pilotId       String          @map("pilot_id")
+  createdAt     DateTime        @default(now())
+  updatedAt     DateTime?       @updatedAt
   FlightAirline FlightAirline[]
 
   route Route @relation(fields: [routeId], references: [id])
   user  User  @relation(fields: [userId], references: [id])
+  pilot Pilot @relation(fields: [pilotId], references: [id])
 
   @@map("TB_FLIGHTS")
 }
 
 model FlightAirline {
-  id        String  @id @default(uuid())
-  flightId  String  @map("flight_id")
-  airlineId String  @map("airline_id")
-  flight    Flight  @relation(fields: [flightId], references: [id])
-  airline   Airline @relation(fields: [airlineId], references: [id])
-  createdAt DateTime @default(now())
+  id        String    @id @default(uuid())
+  flightId  String    @map("flight_id")
+  airlineId String    @map("airline_id")
+  flight    Flight    @relation(fields: [flightId], references: [id])
+  airline   Airline   @relation(fields: [airlineId], references: [id])
+  createdAt DateTime  @default(now())
   updatedAt DateTime? @updatedAt
 
   @@map("TB_FLIGHTS_AIRLINES")
@@ -76,6 +89,5 @@ model FlightAirline {
 
 enum Role {
   ADMIN
-  PILOT
   CLIENT
 }

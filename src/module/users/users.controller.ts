@@ -11,22 +11,23 @@ import {
 import { UsersService } from './users.service';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
-import { JwtStrategy } from '../auth/jwt-strategy.auth';
-import { AuthGuard } from '@nestjs/passport';
 import { JwtAuthGuard } from '../auth/jwt-auth.guard';
+import { AllUsersResponseDto } from './dto/all-users.dto';
+import { SkipAuthJwtGuard } from 'src/decorator/skip-auth-jwt-guard.decorator';
 
+@UseGuards(JwtAuthGuard)
 @Controller('/api/user')
 export class UsersController {
   constructor(private readonly usersService: UsersService) {}
 
   @Post()
+  @SkipAuthJwtGuard()
   create(@Body() createUserDto: CreateUserDto) {
     return this.usersService.create(createUserDto);
   }
 
-  @UseGuards(JwtAuthGuard)
   @Get('/all')
-  findAll() {
+  findAll(): Promise<AllUsersResponseDto[]> {
     return this.usersService.findAll();
   }
 

@@ -3,7 +3,6 @@ import { Injectable } from '@nestjs/common';
 import { User } from '@prisma/client';
 import { CreateUserDto } from '../../dto/create-user.dto';
 import { IUserRepository } from '../users.repository';
-import { AllUsersResponseDto } from '../../dto/all-users.dto';
 
 @Injectable()
 export class UserRepositoryImpl implements IUserRepository {
@@ -13,13 +12,9 @@ export class UserRepositoryImpl implements IUserRepository {
     throw new Error('Method not implemented.');
   }
 
-  async getAll(): Promise<AllUsersResponseDto[]> {
+  async getAll(): Promise<User[]> {
     try {
       const users = await this.prisma.user.findMany({});
-
-      users.forEach((user) => {
-        this.exclude(user, ['password']);
-      });
 
       return users;
     } catch (err) {
@@ -52,13 +47,5 @@ export class UserRepositoryImpl implements IUserRepository {
     });
   }
 
-  exclude<User, Key extends keyof User>(
-    user: User,
-    keys: Key[],
-  ): Omit<User, Key> {
-    for (const key of keys) {
-      delete user[key];
-    }
-    return user;
-  }
+ 
 }

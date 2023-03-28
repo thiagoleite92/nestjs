@@ -1,10 +1,9 @@
 import { User } from '@prisma/client';
-import { AllUsersResponseDto } from '../dto/all-users.dto';
 
 export interface IUserRepository {
   getUserById(id: string): Promise<User>;
 
-  getAll(): Promise<AllUsersResponseDto[]>;
+  getAll(): Promise<User[]>;
 
   saveUser(user: User): Promise<string>;
 
