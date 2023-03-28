@@ -17,6 +17,8 @@ model User {
   password String
   isActive Boolean  @default(true) @map("is_active")
   role     Role     @default(CLIENT)
+  createdAt DateTime @default(now())
+  updatedAt DateTime? @updatedAt
   Flight   Flight[]
 
   @@map("TB_USERS")
@@ -26,7 +28,9 @@ model Route {
   id       String   @id @default(uuid())
   origin   String
   destiny  String
-  duration Int
+  durationEstimated Int @map("duration_estimated")
+  createdAt DateTime @default(now())
+  updatedAt DateTime? @updatedAt
   Flight   Flight[]
 
   @@map("TB_ROUTES")
@@ -35,6 +39,8 @@ model Route {
 model Airline {
   id            String          @id @default(uuid())
   airline       String
+  createdAt DateTime @default(now())
+  updatedAt DateTime? @updatedAt
   FlightAirline FlightAirline[]
 
   @@map("TB_AIRLINES")
@@ -46,6 +52,8 @@ model Flight {
   departureDate DateTime        @map("departure_date")
   routeId       String          @map("route_id")
   userId        String          @map("pilot_id")
+  createdAt DateTime @default(now())
+  updatedAt DateTime? @updatedAt
   FlightAirline FlightAirline[]
 
   route Route @relation(fields: [routeId], references: [id])
@@ -60,6 +68,8 @@ model FlightAirline {
   airlineId String  @map("airline_id")
   flight    Flight  @relation(fields: [flightId], references: [id])
   airline   Airline @relation(fields: [airlineId], references: [id])
+  createdAt DateTime @default(now())
+  updatedAt DateTime? @updatedAt
 
   @@map("TB_FLIGHTS_AIRLINES")
 }
