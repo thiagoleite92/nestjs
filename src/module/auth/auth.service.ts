@@ -25,12 +25,8 @@ export class AuthService {
   }
 
   async generateToken({ name, role, email, id }: User):Promise<any> {
-   const payload = {
-    sub: id, email
-   }
-
     return {
-    token:  this.jwtService.sign(payload),
+    accessToken:  this.jwtService.sign({sub: id, email}),
       user: {email, name, role, id}
     }
   }
