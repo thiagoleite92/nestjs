@@ -27,7 +27,7 @@ model User {
 model Pilot {
   id        String    @id @default(uuid())
   name      String
-  CNP       String
+  flightExp String    @map("flight_exp")
   createdAt DateTime  @default(now())
   updatedAt DateTime? @updatedAt
   Flight    Flight[]

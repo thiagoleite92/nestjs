@@ -9,8 +9,12 @@ import { UpdateUserDto } from '../../dto/update-user.dto';
 export class UserRepositoryImpl implements IUserRepository {
   constructor(private prisma: PrismaService) {}
 
-  async getUserById(id: string): Promise<User> {
-    throw new Error('Method not implemented.');
+  async findUserById(userId: string): Promise<User | null> {
+    return await this.prisma.user.findFirst({
+      where: {
+        id: userId,
+      },
+    });
   }
 
   async getAll(): Promise<User[]> {
@@ -33,25 +37,38 @@ export class UserRepositoryImpl implements IUserRepository {
     }
   }
 
-  async deleteUser(id: string): Promise<string> {
-    throw new Error('Method not implemented.');
+  async deleteUser(userId: string): Promise<void | string> {
+    try {
+      await this.prisma.user.delete({
+        where: { id: userId },
+      });
+      return;
+    } catch (error) {
+      console.log(error);
+      return 'Houve um erro ao deletar usuário';
+    }
   }
+
   async updateUser(
     userId: string,
     { name, email, password }: UpdateUserDto,
   ): Promise<User> {
-    const update = await this.prisma.user.update({
-      where: {
-        id: userId,
-      },
-      data: {
-        name,
-        email,
-        password,
-      },
-    });
+    try {
+      const update = await this.prisma.user.update({
+        where: {
+          id: userId,
+        },
+        data: {
+          name,
+          email,
+          password,
+        },
+      });
 
-    return update;
+      return update;
+    } catch (error) {
+      return;
+    }
   }
 
   async findUserByEmail(email: string): Promise<User | null> {

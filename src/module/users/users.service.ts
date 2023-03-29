@@ -3,6 +3,7 @@ import {
   Injectable,
   NotFoundException,
 } from '@nestjs/common';
+import { User } from '@prisma/client';
 import { BcryptService } from '../shared/bcrypt.service';
 import { AllUsersResponseDto } from './dto/all-users.dto';
 import { CreateUserDto } from './dto/create-user.dto';
@@ -41,9 +42,9 @@ export class UsersService {
   }
 
   async update(userId: string, updateUserDto: UpdateUserDto): Promise<string> {
-    if (await this.findByEmail(userId)) {
+    if (!(await this.findById(userId))) {
       throw new NotFoundException({
-        message: 'Usuário não encontrado',
+        erro: 'Usuário não encontrado',
       });
     }
 
@@ -55,11 +56,31 @@ export class UsersService {
 
     await this.userRepository.updateUser(userId, updateUserDto);
 
-    return 'Usuário atualizado com sucesso.';
+    return 'Usuário atualizado com sucesso';
   }
 
-  async findByEmail(email: string) {
+  async deleteUser(userId: string): Promise<void | string> {
+    if (!(await this.findById(userId))) {
+      throw new NotFoundException({
+        erro: 'Usuário não encontrado',
+      });
+    }
+
+    return await this.userRepository.deleteUser(userId);
+  }
+
+  async findByEmail(email: string): Promise<User | null> {
     return await this.userRepository.findUserByEmail(email);
+  }
+
+  async findById(userId: string): Promise<User | null> {
+    const user = await this.userRepository.findUserById(userId);
+
+    if (user) {
+      this.excludeKeys(user, ['password']);
+    }
+
+    return user;
   }
 
   excludeKeys<User, Key extends keyof User>(

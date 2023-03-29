@@ -15,41 +15,40 @@ import { UpdateUserDto } from './dto/update-user.dto';
 import { JwtAuthGuard } from '../auth/jwt-auth.guard';
 import { AllUsersResponseDto } from './dto/all-users.dto';
 import { SkipAuthJwtGuard } from 'src/decorator/skip-auth-jwt-guard.decorator';
+import { User } from '@prisma/client';
 
-@UseGuards(JwtAuthGuard)
+// @UseGuards(JwtAuthGuard)
 @Controller('/api/user')
 export class UsersController {
   constructor(private readonly usersService: UsersService) {}
 
-  @Post()
   // @SkipAuthJwtGuard() usado para deixar algumas rotas públicas
+  @Post()
   async create(@Body() createUserDto: CreateUserDto) {
     return this.usersService.create(createUserDto);
   }
 
-  @Get('/all')
-  async findAll(): Promise<AllUsersResponseDto[]> {
-    return this.usersService.findAll();
+  @Get(':userId?')
+  async findUsers(
+    @Param('userId') userId?: string,
+  ): Promise<AllUsersResponseDto[] | User | null> {
+    if (userId) {
+      return await this.usersService.findById(userId);
+    } else {
+      return await this.usersService.findAll();
+    }
   }
 
   @Patch(':userId')
   async update(
     @Param('userId') userId: string,
     @Body() updateUserDto: UpdateUserDto,
-    @Res() res,
   ): Promise<string> {
-    return res
-      .status(201)
-      .json(this.usersService.update(userId, updateUserDto));
+    return this.usersService.update(userId, updateUserDto);
   }
 
-  // @Get(':id')
-  // async findOne(@Param('id') id: string) {
-  //   return this.usersService.findOne(+id);
-  // }
-
-  // @Delete(':id')
-  // async remove(@Param('id') id: string) {
-  //   return this.usersService.remove(+id);
-  // }
+  @Delete(':userId')
+  async delete(@Param('userId') userId: string): Promise<void | string> {
+    return this.usersService.deleteUser(userId);
+  }
 }

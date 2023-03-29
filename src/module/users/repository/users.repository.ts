@@ -1,15 +1,10 @@
 import { User } from '@prisma/client';
 
 export interface IUserRepository {
-  getUserById(id: string): Promise<User>;
-
-  getAll(): Promise<User[]>;
-
   saveUser(user: User): Promise<string>;
-
-  deleteUser(id: string): Promise<string>;
-
-  updateUser(id: string, user: User): Promise<User>;
-
+  updateUser(userId: string, user: User): Promise<User>;
+  deleteUser(userId: string): Promise<void | string>;
+  getAll(): Promise<User[]>;
   findUserByEmail(email: string): Promise<User | null>;
+  findUserById(userId: string): Promise<User | null>;
 }
