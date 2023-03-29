@@ -30,7 +30,7 @@ export class UserRepositoryImpl implements IUserRepository {
   async saveUser(user: CreateUserDto): Promise<string> {
     try {
       await this.prisma.user.create({ data: user });
-      return 'Usuário criado com sucesso';
+      return 'Registro criado com sucesso';
     } catch (err) {
       console.log(err);
       return 'Houve um error ao criar um usuário';
@@ -51,8 +51,10 @@ export class UserRepositoryImpl implements IUserRepository {
 
   async updateUser(
     userId: string,
-    { name, email, password }: UpdateUserDto,
+    { name, email, password, role, isActive }: UpdateUserDto,
   ): Promise<User> {
+    console.log(name, email, password, role, isActive, 'no repository');
+
     try {
       const update = await this.prisma.user.update({
         where: {
@@ -62,6 +64,8 @@ export class UserRepositoryImpl implements IUserRepository {
           name,
           email,
           password,
+          role,
+          isActive,
         },
       });
 

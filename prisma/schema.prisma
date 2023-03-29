@@ -15,24 +15,14 @@ model User {
   email     String    @unique
   name      String
   password  String
-  isActive  Boolean   @default(true) @map("is_active")
-  role      Role      @default(CLIENT)
+  role      Role      @default(PILOT)
+  isActive  Boolean   @default(false) @map("is_active")
+  flightExp Int?      @default(0) @map("flight_exp")
   createdAt DateTime  @default(now())
   updatedAt DateTime? @updatedAt
   Flight    Flight[]
 
   @@map("TB_USERS")
-}
-
-model Pilot {
-  id        String    @id @default(uuid())
-  name      String
-  flightExp String    @map("flight_exp")
-  createdAt DateTime  @default(now())
-  updatedAt DateTime? @updatedAt
-  Flight    Flight[]
-
-  @@map("TB_PILOTS")
 }
 
 model Route {
@@ -62,15 +52,14 @@ model Flight {
   price         Decimal         @db.Money
   departureDate DateTime        @map("departure_date")
   routeId       String          @map("route_id")
-  userId        String          @map("user_id")
   pilotId       String          @map("pilot_id")
+  flightStatus  FlighStatus     @map("flight_status")
   createdAt     DateTime        @default(now())
   updatedAt     DateTime?       @updatedAt
   FlightAirline FlightAirline[]
 
   route Route @relation(fields: [routeId], references: [id])
-  user  User  @relation(fields: [userId], references: [id])
-  pilot Pilot @relation(fields: [pilotId], references: [id])
+  user  User  @relation(fields: [pilotId], references: [id])
 
   @@map("TB_FLIGHTS")
 }
@@ -89,5 +78,11 @@ model FlightAirline {
 
 enum Role {
   ADMIN
-  CLIENT
+  PILOT
+}
+
+enum FlighStatus {
+  BOOKED
+  CANCELED
+  DONE
 }

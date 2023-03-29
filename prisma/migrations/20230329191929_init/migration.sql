@@ -1,5 +1,8 @@
 -- CreateEnum
-CREATE TYPE "Role" AS ENUM ('ADMIN', 'PILOT', 'CLIENT');
+CREATE TYPE "Role" AS ENUM ('ADMIN', 'PILOT');
+
+-- CreateEnum
+CREATE TYPE "FlighStatus" AS ENUM ('BOOKED', 'CANCELED', 'DONE');
 
 -- CreateTable
 CREATE TABLE "TB_USERS" (
@@ -7,8 +10,11 @@ CREATE TABLE "TB_USERS" (
     "email" TEXT NOT NULL,
     "name" TEXT NOT NULL,
     "password" TEXT NOT NULL,
-    "is_active" BOOLEAN NOT NULL DEFAULT true,
-    "role" "Role" NOT NULL DEFAULT 'CLIENT',
+    "role" "Role" NOT NULL DEFAULT 'PILOT',
+    "is_active" BOOLEAN NOT NULL DEFAULT false,
+    "flight_exp" INTEGER DEFAULT 0,
+    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updatedAt" TIMESTAMP(3),
 
     CONSTRAINT "TB_USERS_pkey" PRIMARY KEY ("id")
 );
@@ -18,7 +24,9 @@ CREATE TABLE "TB_ROUTES" (
     "id" TEXT NOT NULL,
     "origin" TEXT NOT NULL,
     "destiny" TEXT NOT NULL,
-    "duration" INTEGER NOT NULL,
+    "duration_estimated" INTEGER NOT NULL,
+    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updatedAt" TIMESTAMP(3),
 
     CONSTRAINT "TB_ROUTES_pkey" PRIMARY KEY ("id")
 );
@@ -27,6 +35,8 @@ CREATE TABLE "TB_ROUTES" (
 CREATE TABLE "TB_AIRLINES" (
     "id" TEXT NOT NULL,
     "airline" TEXT NOT NULL,
+    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updatedAt" TIMESTAMP(3),
 
     CONSTRAINT "TB_AIRLINES_pkey" PRIMARY KEY ("id")
 );
@@ -38,6 +48,9 @@ CREATE TABLE "TB_FLIGHTS" (
     "departure_date" TIMESTAMP(3) NOT NULL,
     "route_id" TEXT NOT NULL,
     "pilot_id" TEXT NOT NULL,
+    "flight_status" "FlighStatus" NOT NULL,
+    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updatedAt" TIMESTAMP(3),
 
     CONSTRAINT "TB_FLIGHTS_pkey" PRIMARY KEY ("id")
 );
@@ -47,6 +60,8 @@ CREATE TABLE "TB_FLIGHTS_AIRLINES" (
     "id" TEXT NOT NULL,
     "flight_id" TEXT NOT NULL,
     "airline_id" TEXT NOT NULL,
+    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updatedAt" TIMESTAMP(3),
 
     CONSTRAINT "TB_FLIGHTS_AIRLINES_pkey" PRIMARY KEY ("id")
 );
