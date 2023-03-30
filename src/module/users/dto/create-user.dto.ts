@@ -22,7 +22,7 @@ export class CreateUserDto {
   @IsString()
   @IsNotEmpty()
   @Matches(/((?=.*\d)|(?=.*\W+))(?![.\n])(?=.*[A-Z])(?=.*[a-z]).*$/, {
-    message: 'Passwrd do not match minimum security requirements',
+    message: 'Password do not match minimum security requirements',
   })
   password: string;
 

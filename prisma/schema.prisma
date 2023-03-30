@@ -21,6 +21,7 @@ model User {
   createdAt DateTime  @default(now())
   updatedAt DateTime? @updatedAt
   Flight    Flight[]
+  Route     Route[]
 
   @@map("TB_USERS")
 }
@@ -30,50 +31,28 @@ model Route {
   origin            String
   destiny           String
   durationEstimated Int       @map("duration_estimated")
+  departureDate     DateTime  @map("departure_date")
   createdAt         DateTime  @default(now())
   updatedAt         DateTime? @updatedAt
   Flight            Flight[]
+  User              User?     @relation(fields: [userId], references: [id])
+  userId            String
 
   @@map("TB_ROUTES")
 }
 
-model Airline {
-  id            String          @id @default(uuid())
-  airline       String
-  createdAt     DateTime        @default(now())
-  updatedAt     DateTime?       @updatedAt
-  FlightAirline FlightAirline[]
-
-  @@map("TB_AIRLINES")
-}
-
 model Flight {
-  id            String          @id @default(uuid())
-  price         Decimal         @db.Money
-  departureDate DateTime        @map("departure_date")
-  routeId       String          @map("route_id")
-  pilotId       String          @map("pilot_id")
-  flightStatus  FlighStatus     @map("flight_status")
-  createdAt     DateTime        @default(now())
-  updatedAt     DateTime?       @updatedAt
-  FlightAirline FlightAirline[]
+  id           String      @id @default(uuid())
+  routeId      String      @map("route_id")
+  pilotId      String      @map("pilot_id")
+  flightStatus FlighStatus @default(BOOKED) @map("flight_status")
+  createdAt    DateTime    @default(now())
+  updatedAt    DateTime?   @updatedAt
 
   route Route @relation(fields: [routeId], references: [id])
   user  User  @relation(fields: [pilotId], references: [id])
 
   @@map("TB_FLIGHTS")
-}
-
-model FlightAirline {
-  id        String    @id @default(uuid())
-  flightId  String    @map("flight_id")
-  airlineId String    @map("airline_id")
-  flight    Flight    @relation(fields: [flightId], references: [id])
-  airline   Airline   @relation(fields: [airlineId], references: [id])
-  createdAt DateTime  @default(now())
-  updatedAt DateTime? @updatedAt
-
-  @@map("TB_FLIGHTS_AIRLINES")
 }
 
 enum Role {

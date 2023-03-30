@@ -1,4 +1,8 @@
-import { Injectable, UnauthorizedException } from '@nestjs/common';
+import {
+  BadRequestException,
+  Injectable,
+  UnauthorizedException,
+} from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { User } from '@prisma/client';
 import { BcryptService } from '../shared/bcrypt.service';
@@ -19,15 +23,28 @@ export class AuthService {
       throw new UnauthorizedException('Usuário ou Senha Inválidos');
     }
     if (await this.bcrypt.comparePassword(password, user.password)) {
-      return user
+      return user;
     }
     throw new UnauthorizedException('Usuário ou Senha Inválidos');
   }
 
-  async generateToken({ name, role, email, id }: User):Promise<any> {
+  async generateToken({ name, role, email, id }: User): Promise<any> {
     return {
-    accessToken:  this.jwtService.sign({sub: id, email}),
-      user: {email, name, role, id}
+      accessToken: this.jwtService.sign({ sub: id, email }),
+      user: { email, name, role, id },
+    };
+  }
+
+  async decodeToken(token) {
+    try {
+      const decoded = this.jwtService.decode(token);
+
+      if (decoded) {
+        return decoded;
+      }
+      return new BadRequestException('Erro no Token do usuário');
+    } catch (error) {
+      return new BadRequestException('Erro no Token do usuário');
     }
   }
 }

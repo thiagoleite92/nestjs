@@ -13,7 +13,7 @@ export class RoutesRepositoryImpl implements IRoutesRepository {
       return 'Rota criada com sucesso';
     } catch (error) {
       console.log(error);
-      return 'Houve um erro ao criar a rota.';
+      return;
     }
   }
 }

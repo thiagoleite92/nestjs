@@ -1,6 +1,8 @@
 import {
+  IsDateString,
   IsNotEmpty,
   IsOptional,
+  IsUUID,
   Length,
   MAX_LENGTH,
   Validate,
@@ -20,4 +22,10 @@ export class CreateRouteDto {
 
   @IsNotEmpty()
   durationEstimated: number;
+
+  @IsDateString()
+  departureDate;
+
+  @IsUUID()
+  userId: string;
 }

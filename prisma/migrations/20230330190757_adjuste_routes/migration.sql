@@ -25,8 +25,10 @@ CREATE TABLE "TB_ROUTES" (
     "origin" TEXT NOT NULL,
     "destiny" TEXT NOT NULL,
     "duration_estimated" INTEGER NOT NULL,
+    "departure_date" TIMESTAMP(3) NOT NULL,
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updatedAt" TIMESTAMP(3),
+    "userId" TEXT NOT NULL,
 
     CONSTRAINT "TB_ROUTES_pkey" PRIMARY KEY ("id")
 );
@@ -34,6 +36,7 @@ CREATE TABLE "TB_ROUTES" (
 -- CreateTable
 CREATE TABLE "TB_AIRLINES" (
     "id" TEXT NOT NULL,
+    "userId" TEXT NOT NULL,
     "airline" TEXT NOT NULL,
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updatedAt" TIMESTAMP(3),
@@ -45,7 +48,6 @@ CREATE TABLE "TB_AIRLINES" (
 CREATE TABLE "TB_FLIGHTS" (
     "id" TEXT NOT NULL,
     "price" MONEY NOT NULL,
-    "departure_date" TIMESTAMP(3) NOT NULL,
     "route_id" TEXT NOT NULL,
     "pilot_id" TEXT NOT NULL,
     "flight_status" "FlighStatus" NOT NULL,
@@ -68,6 +70,9 @@ CREATE TABLE "TB_FLIGHTS_AIRLINES" (
 
 -- CreateIndex
 CREATE UNIQUE INDEX "TB_USERS_email_key" ON "TB_USERS"("email");
+
+-- AddForeignKey
+ALTER TABLE "TB_ROUTES" ADD CONSTRAINT "TB_ROUTES_userId_fkey" FOREIGN KEY ("userId") REFERENCES "TB_USERS"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
 ALTER TABLE "TB_FLIGHTS" ADD CONSTRAINT "TB_FLIGHTS_route_id_fkey" FOREIGN KEY ("route_id") REFERENCES "TB_ROUTES"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
