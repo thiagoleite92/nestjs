@@ -30,7 +30,7 @@ export class CreateUserDto {
   isActive?: boolean;
 
   @IsOptional()
-  flightXp?: Number;
+  flightExp?: number;
 
   @IsOptional()
   role: Role;

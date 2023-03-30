@@ -10,10 +10,15 @@ import { UsersModule } from '../users/users.module';
 import { JwtStrategy } from './jwt-strategy.auth';
 
 @Module({
-  imports: [SharedModule, UsersModule, JwtModule.register({
-    privateKey: process.env.JWT_SCRET,
-    signOptions: {expiresIn: '60s'}
-  }), PassportModule],
+  imports: [
+    SharedModule,
+    UsersModule,
+    JwtModule.register({
+      privateKey: process.env.JWT_SCRET,
+      signOptions: { expiresIn: '60m' },
+    }),
+    PassportModule,
+  ],
   controllers: [AuthController],
   providers: [AuthService, LocalStrategy, JwtStrategy],
 })

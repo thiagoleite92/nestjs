@@ -17,7 +17,7 @@ import { AllUsersResponseDto } from './dto/all-users.dto';
 import { SkipAuthJwtGuard } from 'src/decorator/skip-auth-jwt-guard.decorator';
 import { User } from '@prisma/client';
 
-// @UseGuards(JwtAuthGuard)
+@UseGuards(JwtAuthGuard)
 @Controller('/api/user')
 export class UsersController {
   constructor(private readonly usersService: UsersService) {}
