@@ -30,7 +30,7 @@ export class AuthService {
 
   async generateToken({ name, role, email, id }: User): Promise<any> {
     return {
-      accessToken: this.jwtService.sign({ sub: id, email }),
+      accessToken: this.jwtService.sign({ sub: id, email, role }),
       user: { email, name, role, id },
     };
   }

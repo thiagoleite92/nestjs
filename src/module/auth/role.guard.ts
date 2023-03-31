@@ -30,24 +30,12 @@ export class RolesGuard implements CanActivate {
       return true;
     }
 
-    const token = ExtractJwt.fromAuthHeaderAsBearerToken()(
-      context.switchToHttp().getRequest(),
-    );
+    const user = context.switchToHttp().getRequest()?.user;
 
-    if (!token) {
+    if (user) {
+      return requiredRoles.some((role) => role === user?.role);
+    } else {
       return false;
     }
-
-    const { sub: userId } = await this.authService.decodeToken(token);
-
-    if (!userId) {
-      return false;
-    }
-
-    const user = await this.usersService.findById(userId);
-
-    context.switchToHttp().getRequest().body.userId = userId;
-
-    return requiredRoles.some((role) => role === user?.role);
   }
 }

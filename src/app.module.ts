@@ -8,8 +8,6 @@ import { SharedModule } from './module/shared/shared.module';
 import { AuthModule } from './module/auth/auth.module';
 import { RoutesModule } from './module/routes/routes.module';
 import { HttpModule } from '@nestjs/axios';
-import { RolesGuard } from './module/auth/role.guard';
-import { APP_GUARD } from '@nestjs/core';
 
 @Module({
   imports: [
@@ -25,6 +23,6 @@ import { APP_GUARD } from '@nestjs/core';
     }),
   ],
   controllers: [AppController],
-  providers: [AppService, { provide: APP_GUARD, useClass: RolesGuard }],
+  providers: [AppService],
 })
 export class AppModule {}
