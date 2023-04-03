@@ -22,7 +22,6 @@ import { User } from '@prisma/client';
 export class UsersController {
   constructor(private readonly usersService: UsersService) {}
 
-  // @SkipAuthJwtGuard() usado para deixar algumas rotas públicas
   @Post()
   async create(@Body() createUserDto: CreateUserDto) {
     return this.usersService.create(createUserDto);
@@ -32,11 +31,9 @@ export class UsersController {
   async findUsers(
     @Param('userId') userId?: string,
   ): Promise<AllUsersResponseDto[] | User | null> {
-    if (userId) {
-      return await this.usersService.findById(userId);
-    } else {
-      return await this.usersService.findAll();
-    }
+    return userId
+      ? await this.usersService.findById(userId)
+      : await this.usersService.findAll();
   }
 
   @Patch(':userId')
