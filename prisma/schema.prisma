@@ -42,12 +42,12 @@ model Route {
 }
 
 model Flight {
-  id           String      @id @default(uuid())
-  routeId      String      @map("route_id")
-  pilotId      String      @map("pilot_id")
-  flightStatus FlighStatus @default(BOOKED) @map("flight_status")
-  createdAt    DateTime    @default(now())
-  updatedAt    DateTime?   @updatedAt
+  id           String       @id @default(uuid())
+  routeId      String       @map("route_id")
+  pilotId      String       @map("pilot_id")
+  flightStatus FlightStatus @default(BOOKED) @map("flight_status")
+  createdAt    DateTime     @default(now())
+  updatedAt    DateTime?    @updatedAt
 
   route Route @relation(fields: [routeId], references: [id])
   user  User  @relation(fields: [pilotId], references: [id])
@@ -60,7 +60,7 @@ enum Role {
   PILOT
 }
 
-enum FlighStatus {
+enum FlightStatus {
   BOOKED
   CANCELED
   DONE
