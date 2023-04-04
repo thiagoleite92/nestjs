@@ -4,10 +4,10 @@ import {
   NotFoundException,
 } from '@nestjs/common';
 import { CreateRouteDto } from './dto/create-route.dto';
-import { RoutesRepositoryImpl } from './repository/implementation/routes.repositoryImpl';
 import { Route } from '@prisma/client';
 import { UpdateRouteDto } from './dto/update-route.dto';
 import { UsersService } from '../users/users.service';
+import { RoutesRepositoryImpl } from './repository/routes.repositoryImpl';
 
 @Injectable()
 export class RoutesService {

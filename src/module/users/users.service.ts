@@ -8,7 +8,7 @@ import { BcryptService } from '../shared/bcrypt.service';
 import { AllUsersResponseDto } from './dto/all-users.dto';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
-import { UserRepositoryImpl } from './repository/implementation/users.repositoryImpl';
+import { UserRepositoryImpl } from './repository/users.repositoryImpl';
 
 @Injectable()
 export class UsersService {

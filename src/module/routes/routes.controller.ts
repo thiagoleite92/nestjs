@@ -12,13 +12,13 @@ import {
 import { JwtAuthGuard } from '../auth/jwt-auth.guard';
 import { CreateRouteDto } from './dto/create-route.dto';
 import { RoutesService } from './routes.service';
-import { RolesGuard } from '../auth/role.guard';
+import { AdminGuard } from '../auth/admin-role.guard';
 import { Roles } from 'src/decorator/role.decorator';
 import { Role } from 'src/enums/role.enum';
 import { UpdateRouteDto } from './dto/update-route.dto';
 import { Route } from '@prisma/client';
 
-@UseGuards(JwtAuthGuard, RolesGuard)
+@UseGuards(JwtAuthGuard, AdminGuard)
 @Controller('/api/route')
 @Roles(Role.ADMIN)
 export class RoutesController {
@@ -26,7 +26,6 @@ export class RoutesController {
 
   @Post()
   async create(@Body() createRouteDto: CreateRouteDto, @Req() teste) {
-    console.log(teste.body);
     return this.routesService.saveRoute(createRouteDto);
   }
 
