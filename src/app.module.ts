@@ -8,6 +8,7 @@ import { SharedModule } from './module/shared/shared.module';
 import { AuthModule } from './module/auth/auth.module';
 import { RoutesModule } from './module/routes/routes.module';
 import { HttpModule } from '@nestjs/axios';
+import { FlightsModule } from './module/flights/flights.module';
 
 @Module({
   imports: [
@@ -21,6 +22,7 @@ import { HttpModule } from '@nestjs/axios';
         maxRedirects: 5,
       }),
     }),
+    FlightsModule,
   ],
   controllers: [AppController],
   providers: [AppService],

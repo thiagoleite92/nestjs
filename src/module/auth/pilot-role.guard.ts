@@ -17,11 +17,7 @@ export class PilotGuard implements CanActivate {
       return true;
     }
 
-    console.log(requiredRoles);
-
     const user = context.switchToHttp().getRequest()?.user;
-
-    console.log(user);
 
     if (user) {
       context.switchToHttp().getRequest().body.pilotId = user.id;
