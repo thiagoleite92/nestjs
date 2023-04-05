@@ -11,17 +11,18 @@ datasource db {
 }
 
 model User {
-  id        String    @id @default(uuid())
-  email     String    @unique
-  name      String
-  password  String
-  role      Role      @default(PILOT)
-  isActive  Boolean   @default(false) @map("is_active")
-  flightExp Int?      @default(0) @map("flight_exp")
-  createdAt DateTime  @default(now())
-  updatedAt DateTime? @updatedAt
-  Flight    Flight[]
-  Route     Route[]
+  id            String    @id @default(uuid())
+  email         String    @unique
+  name          String
+  password      String
+  role          Role      @default(PILOT)
+  isActive      Boolean   @default(false) @map("is_active")
+  flightExp     Int?      @default(0) @map("flight_exp")
+  actuaLocation String?
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime? @updatedAt
+  Flight        Flight[]
+  Route         Route[]
 
   @@map("TB_USERS")
 }
@@ -31,7 +32,8 @@ model Route {
   origin            String
   destiny           String
   durationEstimated Int       @map("duration_estimated")
-  departureDate     DateTime  @map("departure_date")
+  departureTime     DateTime  @default(now()) @map("departure_time")
+  arrivalTime       DateTime  @map("arrival_time")
   createdAt         DateTime  @default(now())
   updatedAt         DateTime? @updatedAt
   Flight            Flight[]
