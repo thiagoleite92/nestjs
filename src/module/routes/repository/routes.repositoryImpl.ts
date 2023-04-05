@@ -22,13 +22,13 @@ export class RoutesRepositoryImpl implements IRoutesRepository {
   async checkDuplicateRoute({
     origin,
     destiny,
-    departureDate,
+    departureTime,
   }: CreateRouteDto): Promise<Route | null> {
     return this.prisma.route.findFirst({
       where: {
         origin,
         destiny,
-        departureDate,
+        departureTime,
       },
     });
   }
@@ -56,9 +56,10 @@ export class RoutesRepositoryImpl implements IRoutesRepository {
     {
       origin,
       destiny,
-      departureDate,
+      departureTime,
       durationEstimated,
       userId,
+      arrivalTime,
     }: UpdateRouteDto,
   ): Promise<string> {
     try {
@@ -66,7 +67,14 @@ export class RoutesRepositoryImpl implements IRoutesRepository {
         where: {
           id: routeId,
         },
-        data: { origin, destiny, departureDate, durationEstimated, userId },
+        data: {
+          origin,
+          destiny,
+          departureTime,
+          durationEstimated,
+          userId,
+          arrivalTime,
+        },
       });
 
       return 'Rota atualizada com sucesso.';

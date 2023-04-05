@@ -24,8 +24,12 @@ export class CreateRouteDto {
   durationEstimated: number;
 
   @IsDateString()
-  departureDate;
+  departureTime;
 
   @IsUUID()
   userId: string;
+
+  @IsDateString()
+  @IsOptional()
+  arrivalTime;
 }

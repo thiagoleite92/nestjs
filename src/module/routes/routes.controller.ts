@@ -25,7 +25,7 @@ export class RoutesController {
   constructor(private readonly routesService: RoutesService) {}
 
   @Post()
-  async create(@Body() createRouteDto: CreateRouteDto, @Req() teste) {
+  async create(@Body() createRouteDto: CreateRouteDto) {
     return this.routesService.saveRoute(createRouteDto);
   }
 

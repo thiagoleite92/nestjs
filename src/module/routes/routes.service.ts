@@ -8,12 +8,14 @@ import { Route } from '@prisma/client';
 import { UpdateRouteDto } from './dto/update-route.dto';
 import { UsersService } from '../users/users.service';
 import { RoutesRepositoryImpl } from './repository/routes.repositoryImpl';
+import { MomentService } from '../shared/moment.service';
 
 @Injectable()
 export class RoutesService {
   constructor(
     private routesRepository: RoutesRepositoryImpl,
     private usersService: UsersService,
+    private moment: MomentService,
   ) {}
 
   async saveRoute(createRouteDto: CreateRouteDto): Promise<String> {
@@ -26,6 +28,15 @@ export class RoutesService {
     if (await this.checkDuplicateRoute(createRouteDto)) {
       throw new ConflictException('Rota duplicada, consulte a lista de rotas.');
     }
+
+    const { departureTime, durationEstimated } = createRouteDto;
+
+    const arrivalTime = this.moment.adjustArrivalTime(
+      departureTime,
+      durationEstimated,
+    );
+
+    createRouteDto.arrivalTime = arrivalTime;
 
     return this.routesRepository.saveRoute(createRouteDto);
   }
@@ -52,7 +63,10 @@ export class RoutesService {
     routeId: string,
     updateRouteDto: UpdateRouteDto,
   ): Promise<string> {
-    if (!(await this.findRouteById(routeId))) {
+    let newArrivalTime: string = null;
+    const route = await this.findRouteById(routeId);
+
+    if (!route) {
       throw new NotFoundException('Rota não encontrada.');
     }
 
@@ -61,6 +75,18 @@ export class RoutesService {
         'Usuário para atualização da rota, não encontrado.',
       );
     }
+
+    if (
+      route.departureTime !== updateRouteDto.departureTime ||
+      route.durationEstimated !== updateRouteDto.durationEstimated
+    ) {
+      newArrivalTime = this.moment.adjustArrivalTime(
+        updateRouteDto.departureTime || route.departureTime,
+        updateRouteDto.durationEstimated || route.durationEstimated,
+      );
+      updateRouteDto.arrivalTime = newArrivalTime;
+    }
+
     return this.routesRepository.updateRoute(routeId, updateRouteDto);
   }
 
