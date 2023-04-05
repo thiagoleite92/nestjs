@@ -10,5 +10,6 @@ import { RoutesRepositoryImpl } from './repository/routes.repositoryImpl';
   imports: [SharedModule, AuthModule, UsersModule],
   controllers: [RoutesController],
   providers: [RoutesService, RoutesRepositoryImpl],
+  exports: [RoutesService],
 })
 export class RoutesModule {}
