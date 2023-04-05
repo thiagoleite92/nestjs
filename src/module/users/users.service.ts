@@ -42,10 +42,20 @@ export class UsersService {
   }
 
   async update(userId: string, updateUserDto: UpdateUserDto): Promise<string> {
-    if (!(await this.findById(userId))) {
+    const user = await this.findById(userId);
+
+    if (!user) {
       throw new NotFoundException({
         erro: 'Usuário não encontrado',
       });
+    }
+
+    if (updateUserDto.email !== user.email) {
+      if (await this.findByEmail(updateUserDto.email)) {
+        throw new ConflictException({
+          message: 'Email já registrado',
+        });
+      }
     }
 
     if (updateUserDto.password) {

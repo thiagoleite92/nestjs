@@ -51,7 +51,15 @@ export class UserRepositoryImpl implements IUserRepository {
 
   async updateUser(
     userId: string,
-    { name, email, password, role, isActive, flightExp }: UpdateUserDto,
+    {
+      name,
+      email,
+      password,
+      role,
+      isActive,
+      flightExp,
+      actualLocation,
+    }: UpdateUserDto,
   ): Promise<User> {
     try {
       const update = await this.prisma.user.update({
@@ -65,11 +73,13 @@ export class UserRepositoryImpl implements IUserRepository {
           role,
           isActive,
           flightExp,
+          actualLocation,
         },
       });
 
       return update;
     } catch (error) {
+      console.log(error);
       return;
     }
   }

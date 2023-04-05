@@ -1,8 +1,9 @@
 import { User } from '@prisma/client';
 import { UpdateUserDto } from '../dto/update-user.dto';
+import { CreateUserDto } from '../dto/create-user.dto';
 
 export interface IUserRepository {
-  saveUser(user: User): Promise<string>;
+  saveUser(user: CreateUserDto): Promise<string>;
   updateUser(userId: string, user: UpdateUserDto): Promise<User>;
   deleteUser(userId: string): Promise<void | string>;
   getAll(): Promise<User[]>;

@@ -6,7 +6,10 @@ import {
   Length,
   Matches,
   IsOptional,
+  Validate,
+  IsEmpty,
 } from 'class-validator';
+import { ValidCity } from 'src/module/routes/pipes/ValidateCity.pipe';
 
 export class CreateUserDto {
   @Length(3)
@@ -34,4 +37,8 @@ export class CreateUserDto {
 
   @IsOptional()
   role: Role;
+
+  @Validate(ValidCity, { message: 'Localização atual não encontrada.' })
+  @IsNotEmpty()
+  actualLocation: string;
 }
