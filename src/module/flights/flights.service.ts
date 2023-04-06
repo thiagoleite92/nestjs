@@ -1,14 +1,14 @@
 import {
-  Body,
+  BadRequestException,
   ConflictException,
   Injectable,
   NotFoundException,
-  Patch,
 } from '@nestjs/common';
 import { FlightsRepositoryImpl } from './repository/flights.repositoryImpl';
 import { CreateFlightDto } from './dto/create-flight.dto';
 import { UpdateFlightDto } from './dto/update-flight.dto';
 import { RoutesService } from '../routes/routes.service';
+import { UsersService } from '../users/users.service';
 import { Route } from '@prisma/client';
 
 @Injectable()
@@ -16,15 +16,33 @@ export class FlightsService {
   constructor(
     private flightsRepository: FlightsRepositoryImpl,
     private routesService: RoutesService,
+    private usersService: UsersService,
   ) {}
 
   async saveFlight(createFlightDto: CreateFlightDto): Promise<string> {
-    if (!(await this.checkRouteExistance(createFlightDto.routeId))) {
+    const { routeId, pilotId } = createFlightDto;
+
+    if (await this.flightsRepository.bookedFlightByPilotId(pilotId)) {
+      throw new BadRequestException('Esse piloto já tem uma rota agendada.');
+    }
+
+    const route = await this.routesService.findRouteById(routeId);
+
+    if (!route) {
       throw new NotFoundException('Rota não encontrada.');
     }
 
-    if (await this.checkDuplicateFlightByRoute(createFlightDto.routeId)) {
+    if (!route.isAvailable) {
+      throw new BadRequestException('Rota não está disponível');
+    }
+    if (await this.flightsRepository.findFlightByRouteId(routeId)) {
       throw new ConflictException('Rota já está agendada para outro piloto.');
+    }
+
+    if (!(await this.checkPilotLocationAndRouteOrigin(pilotId, routeId))) {
+      throw new BadRequestException(
+        'Piloto e Origem da rota solicitada não coincidem.',
+      );
     }
 
     return this.flightsRepository.saveFlight(createFlightDto);
@@ -32,40 +50,50 @@ export class FlightsService {
 
   async updateFlight(
     flightId: string,
-    updateFlightDto: UpdateFlightDto,
+    routeId: string,
+    pilotId: string,
   ): Promise<string> {
-    if (!(await this.checkRouteExistance(updateFlightDto.routeId))) {
-      throw new NotFoundException('Rota não encontrada.');
+    const flight = await this.flightsRepository.findFlightById(flightId);
+
+    const currentPilotId = flight.pilotId;
+
+    if (currentPilotId !== pilotId) {
+      throw new BadRequestException(
+        'Apenas o piloto que agendou a viagem pode atualiza-la.',
+      );
     }
 
-    const findByFlightId = await this.flightsRepository.findFlightByFlightId(
-      flightId,
-    );
-
-    if (!findByFlightId) {
+    if (!flight) {
       throw new NotFoundException('Voo não encontrado');
     }
 
-    if (await this.checkDuplicateFlightByRoute(updateFlightDto.routeId)) {
-      throw new ConflictException('Rota já está agendada para outro piloto.');
+    if (!(await this.routesService.findRouteById(routeId))) {
+      throw new NotFoundException('Rota não encontrada.');
     }
 
-    await this.flightsRepository.updateFlight(flightId, updateFlightDto);
+    if (await this.flightsRepository.findFlightByRouteId(routeId)) {
+      throw new ConflictException('Essa rota já foi agendada');
+    }
+
+    if (!(await this.checkPilotLocationAndRouteOrigin(pilotId, routeId))) {
+      throw new BadRequestException(
+        'Piloto e Origem da rota solicitada não coincidem.',
+      );
+    }
+
+    await this.flightsRepository.updateFlight(flightId, routeId);
 
     return 'Voo atualizado com sucesso';
   }
 
-  async checkDuplicateFlightByRoute(routeId: string): Promise<boolean> {
-    const findByRouteId = await this.flightsRepository.findFlightByRouteId(
-      routeId,
-    );
+  async checkPilotLocationAndRouteOrigin(
+    pilotId: string,
+    routeId: string,
+  ): Promise<boolean> {
+    const { actualLocation } = await this.usersService.findById(pilotId);
 
-    return !!findByRouteId;
-  }
+    const { origin } = await this.routesService.findRouteById(routeId);
 
-  async checkRouteExistance(routeId: string): Promise<Route> {
-    const findRouteById = await this.routesService.findRouteById(routeId);
-
-    return findRouteById;
+    return actualLocation === origin;
   }
 }

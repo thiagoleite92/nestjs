@@ -4,6 +4,7 @@ import {
   Param,
   Patch,
   Post,
+  Req,
   UseGuards,
 } from '@nestjs/common';
 import { FlightsService } from './flights.service';
@@ -27,9 +28,14 @@ export class FlightsController {
 
   @Patch(':flightId')
   async updateFlight(
+    @Req() req,
     @Param('flightId') flightId: string,
     @Body() updateFlightDto: UpdateFlightDto,
   ): Promise<string> {
-    return this.flightsService.updateFlight(flightId, updateFlightDto);
+    const { routeId } = updateFlightDto;
+
+    const { id: pilotId } = req.user;
+
+    return this.flightsService.updateFlight(flightId, routeId, pilotId);
   }
 }

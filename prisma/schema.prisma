@@ -34,6 +34,7 @@ model Route {
   durationEstimated Int       @map("duration_estimated")
   departureTime     DateTime  @default(now()) @map("departure_time")
   arrivalTime       DateTime  @map("arrival_time")
+  isAvailable       Boolean   @default(true)
   createdAt         DateTime  @default(now())
   updatedAt         DateTime? @updatedAt
   Flight            Flight[]
