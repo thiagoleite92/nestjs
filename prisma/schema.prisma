@@ -19,8 +19,8 @@ model User {
   isActive       Boolean   @default(false) @map("is_active")
   flightExp      Int?      @default(0) @map("flight_exp")
   actualLocation String?
-  createdAt      DateTime  @default(now())
-  updatedAt      DateTime? @updatedAt
+  createdAt      DateTime  @default(now()) @map("created_at")
+  updatedAt      DateTime? @updatedAt @map("updated_at")
   Flight         Flight[]
   Route          Route[]
 
@@ -35,8 +35,8 @@ model Route {
   departureTime     DateTime  @default(now()) @map("departure_time")
   arrivalTime       DateTime  @map("arrival_time")
   isAvailable       Boolean   @default(true)
-  createdAt         DateTime  @default(now())
-  updatedAt         DateTime? @updatedAt @db.Date
+  createdAt         DateTime  @default(now()) @map("created_at")
+  updatedAt         DateTime? @updatedAt @map("updated_at")
   deletedAt         DateTime? @map("deleted_at")
   isDeleted         Boolean   @default(false) @map("is_deleted")
   Flight            Flight[]
@@ -51,8 +51,8 @@ model Flight {
   routeId      String       @map("route_id")
   pilotId      String       @map("pilot_id")
   flightStatus FlightStatus @default(BOOKED) @map("flight_status")
-  createdAt    DateTime     @default(now())
-  updatedAt    DateTime?    @updatedAt
+  createdAt    DateTime     @default(now()) @map("created_at")
+  updatedAt    DateTime?    @updatedAt @map("updated_at")
   deletedAt    DateTime?    @map("deleted_at")
   isDeleted    Boolean      @default(false) @map("is_deleted")
 
