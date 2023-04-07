@@ -36,7 +36,9 @@ model Route {
   arrivalTime       DateTime  @map("arrival_time")
   isAvailable       Boolean   @default(true)
   createdAt         DateTime  @default(now())
-  updatedAt         DateTime? @updatedAt
+  updatedAt         DateTime? @updatedAt @db.Date
+  deletedAt         DateTime? @map("deleted_at")
+  isDeleted         Boolean   @default(false) @map("is_deleted")
   Flight            Flight[]
   User              User?     @relation(fields: [userId], references: [id])
   userId            String
@@ -51,6 +53,8 @@ model Flight {
   flightStatus FlightStatus @default(BOOKED) @map("flight_status")
   createdAt    DateTime     @default(now())
   updatedAt    DateTime?    @updatedAt
+  deletedAt    DateTime?    @map("deleted_at")
+  isDeleted    Boolean      @default(false) @map("is_deleted")
 
   route Route @relation(fields: [routeId], references: [id])
   user  User  @relation(fields: [pilotId], references: [id])
