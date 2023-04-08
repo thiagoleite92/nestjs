@@ -1,0 +1,8 @@
+-- AlterTable
+ALTER TABLE "TB_FLIGHTS" ADD COLUMN     "deleted_at" TIMESTAMP(3),
+ADD COLUMN     "is_deleted" BOOLEAN NOT NULL DEFAULT false;
+
+-- AlterTable
+ALTER TABLE "TB_ROUTES" ADD COLUMN     "deleted_at" TIMESTAMP(3),
+ADD COLUMN     "is_deleted" BOOLEAN NOT NULL DEFAULT false,
+ALTER COLUMN "updatedAt" SET DATA TYPE DATE;

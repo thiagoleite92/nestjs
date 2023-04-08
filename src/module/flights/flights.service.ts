@@ -6,10 +6,8 @@ import {
 } from '@nestjs/common';
 import { FlightsRepositoryImpl } from './repository/flights.repositoryImpl';
 import { CreateFlightDto } from './dto/create-flight.dto';
-import { UpdateFlightDto } from './dto/update-flight.dto';
 import { RoutesService } from '../routes/routes.service';
 import { UsersService } from '../users/users.service';
-import { Route } from '@prisma/client';
 
 @Injectable()
 export class FlightsService {
@@ -55,6 +53,10 @@ export class FlightsService {
   ): Promise<string> {
     const flight = await this.flightsRepository.findFlightById(flightId);
 
+    if (!flight) {
+      throw new NotFoundException('Voo não encontrado');
+    }
+
     const currentPilotId = flight.pilotId;
 
     if (currentPilotId !== pilotId) {
@@ -63,17 +65,13 @@ export class FlightsService {
       );
     }
 
-    if (!flight) {
-      throw new NotFoundException('Voo não encontrado');
-    }
-
     if (!(await this.routesService.findRouteById(routeId))) {
       throw new NotFoundException('Rota não encontrada.');
     }
 
-    if (await this.flightsRepository.findFlightByRouteId(routeId)) {
-      throw new ConflictException('Essa rota já foi agendada');
-    }
+    // if (await this.flightsRepository.findFlightByRouteId(routeId)) {
+    //   throw new ConflictException('Essa rota já foi agendada');
+    // }
 
     if (!(await this.checkPilotLocationAndRouteOrigin(pilotId, routeId))) {
       throw new BadRequestException(
@@ -95,5 +93,22 @@ export class FlightsService {
     const { origin } = await this.routesService.findRouteById(routeId);
 
     return actualLocation === origin;
+  }
+
+  async deleteFlight(flightId: string, pilotId: string): Promise<void> {
+    const flight = await this.flightsRepository.findFlightById(flightId);
+    if (!flight) {
+      throw new NotFoundException('Voo não encontrado');
+    }
+
+    const currentPilotId = flight.pilotId;
+
+    if (currentPilotId !== pilotId) {
+      throw new BadRequestException(
+        'Apenas o piloto que agendou a viagem pode deleta-la',
+      );
+    }
+
+    return this.flightsRepository.deleteFlight(flightId, flight.routeId);
   }
 }

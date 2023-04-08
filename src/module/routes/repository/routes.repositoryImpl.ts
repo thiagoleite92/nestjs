@@ -4,6 +4,7 @@ import { PrismaService } from 'src/module/shared/prisma.service';
 import { IRoutesRepository } from './routes.repository';
 import { UpdateRouteDto } from '../dto/update-route.dto';
 import { CreateRouteDto } from '../dto/create-route.dto';
+import { DetailedRoute } from '../types/detailed-route.type';
 
 @Injectable()
 export class RoutesRepositoryImpl implements IRoutesRepository {
@@ -33,20 +34,43 @@ export class RoutesRepositoryImpl implements IRoutesRepository {
     });
   }
 
-  async findRouteById(routeId: string) {
+  async findRouteById(routeId: string): Promise<Route> {
     return this.prisma.route.findFirst({
       where: {
         id: routeId,
       },
+      include: {
+        Flight: true,
+      },
     });
   }
 
-  async deleteRoute(routeId: string): Promise<void> {
-    await this.prisma.route.delete({
+  async findDetailedRoute(routeId: string): Promise<DetailedRoute> {
+    const detailedRoute = (await this.prisma.route.findFirst({
       where: {
         id: routeId,
       },
-    });
+      include: {
+        Flight: true,
+      },
+    })) as unknown;
+
+    return detailedRoute as DetailedRoute;
+  }
+
+  async deleteRoute(routeId: string, flightId: string): Promise<void> {
+    await this.prisma.$transaction([
+      this.prisma.route.delete({
+        where: {
+          id: routeId,
+        },
+      }),
+      this.prisma.flight.delete({
+        where: {
+          id: flightId,
+        },
+      }),
+    ]);
 
     return;
   }

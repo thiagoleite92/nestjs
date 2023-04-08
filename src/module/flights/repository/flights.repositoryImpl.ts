@@ -2,12 +2,12 @@ import { Injectable } from '@nestjs/common';
 import { IFlightsRepository } from './flights.repository';
 import { CreateFlightDto } from '../dto/create-flight.dto';
 import { PrismaService } from 'src/module/shared/prisma.service';
-import { Flight, Route } from '@prisma/client';
-import { UpdateFlightDto } from '../dto/update-flight.dto';
+import { Flight, FlightStatus, Route } from '@prisma/client';
+import { MomentService } from 'src/module/shared/moment.service';
 
 @Injectable()
 export class FlightsRepositoryImpl implements IFlightsRepository {
-  constructor(private prisma: PrismaService) {}
+  constructor(private prisma: PrismaService, private moment: MomentService) {}
 
   async saveFlight({ pilotId, routeId }: CreateFlightDto): Promise<string> {
     try {
@@ -37,7 +37,9 @@ export class FlightsRepositoryImpl implements IFlightsRepository {
   }
 
   async findFlightByRouteId(routeId: string): Promise<Flight> {
-    return this.prisma.flight.findFirst({ where: { routeId } });
+    return this.prisma.flight.findFirst({
+      where: { routeId },
+    });
   }
 
   async updateFlight(flightId: string, routeId: string): Promise<Flight> {
@@ -75,5 +77,17 @@ export class FlightsRepositoryImpl implements IFlightsRepository {
         flightStatus: 'BOOKED',
       },
     });
+  }
+
+  async deleteFlight(flightId: string, routeId: string): Promise<void> {
+    await this.prisma.$transaction([
+      this.prisma.route.update({
+        where: { id: routeId },
+        data: { isAvailable: true },
+      }),
+      this.prisma.flight.delete({
+        where: { id: flightId },
+      }),
+    ]);
   }
 }

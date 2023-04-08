@@ -8,4 +8,5 @@ export interface IFlightsRepository {
   findFlightByRouteId(routeId: string): Promise<Flight>;
   updateFlight(flightId: string, routeId: string): Promise<Flight>;
   bookedFlightByPilotId(pilotId: string): Promise<Flight>;
+  deleteFlight(flightId: string, routeId: string): Promise<void>;
 }

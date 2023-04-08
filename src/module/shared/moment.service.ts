@@ -1,6 +1,5 @@
 import { Injectable } from '@nestjs/common';
 import * as moment from 'moment';
-import 'moment/locale/pt-br';
 
 @Injectable()
 export class MomentService {
@@ -10,5 +9,9 @@ export class MomentService {
 
   adjustArrivalTime(departureTime: string, durationEstimated: number) {
     return moment(departureTime).add(durationEstimated, 'hours').toISOString();
+  }
+
+  static getMomentPTBR() {
+    return moment(new Date()).add(-3, 'hours').toISOString();
   }
 }

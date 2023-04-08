@@ -47,16 +47,22 @@ export class RoutesService {
     return await this.routesRepository.checkDuplicateRoute(createRouteDto);
   }
 
-  async findRouteById(routeId: string): Promise<Route | null> {
-    return this.routesRepository.findRouteById(routeId);
-  }
-
   async deleteRoute(routeId: string): Promise<void> {
-    if (!(await this.findRouteById(routeId))) {
+    const detailedRoute = await this.routesRepository.findDetailedRoute(
+      routeId,
+    );
+
+    if (!detailedRoute) {
       throw new NotFoundException('Rota não encontrada.');
     }
 
-    return this.routesRepository.deleteRoute(routeId);
+    const flightId = detailedRoute.Flight[0].id;
+
+    return this.routesRepository.deleteRoute(routeId, flightId);
+  }
+
+  async findRouteById(routeId: string) {
+    return this.routesRepository.findRouteById(routeId);
   }
 
   async updateRoute(
@@ -64,7 +70,7 @@ export class RoutesService {
     updateRouteDto: UpdateRouteDto,
   ): Promise<string> {
     let newArrivalTime: string = null;
-    const route = await this.findRouteById(routeId);
+    const route = await this.routesRepository.findRouteById(routeId);
 
     if (!route) {
       throw new NotFoundException('Rota não encontrada.');
