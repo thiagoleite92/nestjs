@@ -39,38 +39,41 @@ export class RoutesRepositoryImpl implements IRoutesRepository {
       where: {
         id: routeId,
       },
-      include: {
-        Flight: true,
-      },
     });
   }
 
-  async findDetailedRoute(routeId: string): Promise<DetailedRoute> {
-    const detailedRoute = (await this.prisma.route.findFirst({
+  async findDetailedRoute(routeId: string): Promise<Route> {
+    const detailedRoute = await this.prisma.route.findFirst({
       where: {
         id: routeId,
       },
       include: {
         Flight: true,
       },
-    })) as unknown;
+    });
 
-    return detailedRoute as DetailedRoute;
+    return detailedRoute;
   }
 
-  async deleteRoute(routeId: string, flightId: string): Promise<void> {
-    await this.prisma.$transaction([
-      this.prisma.route.delete({
-        where: {
-          id: routeId,
-        },
-      }),
-      this.prisma.flight.delete({
-        where: {
-          id: flightId,
-        },
-      }),
-    ]);
+  async deleteRoute(routeId: string, flightId?: string): Promise<void> {
+    if (flightId) {
+      await this.prisma.$transaction([
+        this.prisma.route.delete({
+          where: {
+            id: routeId,
+          },
+        }),
+        this.prisma.flight.delete({
+          where: {
+            id: flightId,
+          },
+        }),
+      ]);
+    } else {
+      await this.prisma.route.delete({
+        where: { id: routeId },
+      });
+    }
 
     return;
   }
@@ -109,6 +112,8 @@ export class RoutesRepositoryImpl implements IRoutesRepository {
   }
 
   async getAll(): Promise<Route[]> {
-    return this.prisma.route.findMany({});
+    return this.prisma.route.findMany({
+      where: { isAvailable: true },
+    });
   }
 }

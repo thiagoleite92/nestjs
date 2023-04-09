@@ -4,11 +4,12 @@ import {
   NotFoundException,
 } from '@nestjs/common';
 import { CreateRouteDto } from './dto/create-route.dto';
-import { Route } from '@prisma/client';
+import { FlightStatus, Route } from '@prisma/client';
 import { UpdateRouteDto } from './dto/update-route.dto';
 import { UsersService } from '../users/users.service';
 import { RoutesRepositoryImpl } from './repository/routes.repositoryImpl';
 import { MomentService } from '../shared/moment.service';
+import { DetailedRoute } from './types/detailed-route.type';
 
 @Injectable()
 export class RoutesService {
@@ -48,15 +49,18 @@ export class RoutesService {
   }
 
   async deleteRoute(routeId: string): Promise<void> {
-    const detailedRoute = await this.routesRepository.findDetailedRoute(
+    let flightId = null;
+    const detailedRoute = (await this.routesRepository.findDetailedRoute(
       routeId,
-    );
+    )) as DetailedRoute;
 
     if (!detailedRoute) {
       throw new NotFoundException('Rota não encontrada.');
     }
 
-    const flightId = detailedRoute.Flight[0].id;
+    if (detailedRoute.Flight.length) {
+      flightId = detailedRoute.Flight[0].id;
+    }
 
     return this.routesRepository.deleteRoute(routeId, flightId);
   }

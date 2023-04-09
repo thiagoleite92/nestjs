@@ -32,6 +32,7 @@ export class PrismaService extends PrismaClient implements OnModuleInit {
       isDeleted: true,
       deletedAt: MomentService.getMomentPTBR(),
       updatedAt: null,
+      isAvailable: false,
     };
 
     if (params.action === 'delete' && params.model === 'Route') {

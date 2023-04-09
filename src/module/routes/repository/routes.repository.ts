@@ -7,8 +7,8 @@ export interface IRoutesRepository {
   saveRoute(Route: CreateRouteDto): Promise<string>;
   checkDuplicateRoute(Route: CreateRouteDto): Promise<Route | null>;
   findRouteById(routeId: string): Promise<Route | null>;
-  deleteRoute(routeId: string, flightId: string): Promise<void>;
+  deleteRoute(routeId: string, flightId?: string): Promise<void>;
   updateRoute(routeId: string, updateRoute: UpdateRouteDto): Promise<string>;
   getAll(): Promise<Route[]>;
-  findDetailedRoute(routeId: string): Promise<DetailedRoute>;
+  findDetailedRoute(routeId: string): Promise<Route>;
 }
