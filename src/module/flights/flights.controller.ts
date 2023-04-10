@@ -2,6 +2,7 @@ import {
   Body,
   Controller,
   Delete,
+  Get,
   Param,
   Patch,
   Post,
@@ -16,8 +17,10 @@ import { Roles } from 'src/decorator/role.decorator';
 import { Role } from 'src/enums/role.enum';
 import { UpdateFlightDto } from './dto/update-flight.dto';
 import { Request } from 'express';
+import { Flight } from '@prisma/client';
+import { RolesAuthGuard } from '../auth/roles-auth.guard';
 
-@UseGuards(JwtAuthGuard, PilotGuard)
+@UseGuards(JwtAuthGuard, RolesAuthGuard)
 @Controller('/api/flight')
 export class FlightsController {
   constructor(private flightsService: FlightsService) {}
@@ -51,5 +54,14 @@ export class FlightsController {
     const { id: pilotId } = req.user;
 
     return this.flightsService.deleteFlight(flightId, pilotId);
+  }
+
+  @Get(':flightId?')
+  async getFlights(
+    @Param('flightId') flightId?: string,
+  ): Promise<Flight[] | Flight | null> {
+    return flightId
+      ? await this.flightsService.findFlightById(flightId)
+      : await this.flightsService.getAllFlights();
   }
 }

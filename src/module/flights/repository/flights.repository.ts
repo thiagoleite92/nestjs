@@ -9,4 +9,5 @@ export interface IFlightsRepository {
   updateFlight(flightId: string, routeId: string): Promise<Flight>;
   bookedFlightByPilotId(pilotId: string): Promise<Flight>;
   deleteFlight(flightId: string, routeId: string): Promise<void>;
+  getAllFlights(): Promise<Flight[]>;
 }

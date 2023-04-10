@@ -90,4 +90,8 @@ export class FlightsRepositoryImpl implements IFlightsRepository {
       }),
     ]);
   }
+
+  async getAllFlights(): Promise<Flight[]> {
+    return this.prisma.flight.findMany({});
+  }
 }

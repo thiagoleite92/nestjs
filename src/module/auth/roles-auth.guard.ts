@@ -4,7 +4,7 @@ import { ROLES_KEY } from 'src/decorator/role.decorator';
 import { Role } from 'src/enums/role.enum';
 
 @Injectable()
-export class AdminGuard implements CanActivate {
+export class RolesAuthGuard implements CanActivate {
   constructor(private reflector: Reflector) {}
 
   async canActivate(context: ExecutionContext): Promise<boolean> {
@@ -20,7 +20,7 @@ export class AdminGuard implements CanActivate {
     const user = context.switchToHttp().getRequest()?.user;
 
     if (user) {
-      context.switchToHttp().getRequest().body.userId = user.id;
+      context.switchToHttp().getRequest().body.pilotId = user.id;
       return requiredRoles.some((role) => role === user?.role);
     } else {
       return false;
