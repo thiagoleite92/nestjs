@@ -1,4 +1,4 @@
-export const states = [
+const states = [
   {
     ID: '1',
     Sigla: 'AC',
@@ -135,3 +135,5 @@ export const states = [
     Nome: 'Tocantins',
   },
 ];
+
+module.exports = { states };
