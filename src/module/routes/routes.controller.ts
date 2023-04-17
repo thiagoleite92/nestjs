@@ -13,10 +13,10 @@ import { JwtAuthGuard } from '../auth/jwt-auth.guard';
 import { CreateRouteDto } from './dto/create-route.dto';
 import { RoutesService } from './routes.service';
 import { AdminGuard } from '../auth/admin-role.guard';
-import { Roles } from 'src/decorator/role.decorator';
-import { Role } from 'src/enums/role.enum';
 import { UpdateRouteDto } from './dto/update-route.dto';
 import { Route } from '@prisma/client';
+import { Roles } from '../../decorator/role.decorator';
+import { Role } from '../../enums/role.enum';
 
 @UseGuards(JwtAuthGuard, AdminGuard)
 @Controller('/api/route')

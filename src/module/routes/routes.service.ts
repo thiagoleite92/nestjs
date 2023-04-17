@@ -4,12 +4,12 @@ import {
   NotFoundException,
 } from '@nestjs/common';
 import { CreateRouteDto } from './dto/create-route.dto';
-import { FlightStatus, Route } from '@prisma/client';
 import { UpdateRouteDto } from './dto/update-route.dto';
 import { UsersService } from '../users/users.service';
 import { RoutesRepositoryImpl } from './repository/routes.repositoryImpl';
 import { MomentService } from '../shared/moment.service';
 import { DetailedRoute } from './types/detailed-route.type';
+import { Route } from '@prisma/client';
 
 @Injectable()
 export class RoutesService {
@@ -19,7 +19,7 @@ export class RoutesService {
     private moment: MomentService,
   ) {}
 
-  async saveRoute(createRouteDto: CreateRouteDto): Promise<String> {
+  async saveRoute(createRouteDto: CreateRouteDto): Promise<string> {
     if (!(await this.usersService.findById(createRouteDto.userId))) {
       throw new NotFoundException(
         'Usuário para criação da rota, não encontrado.',

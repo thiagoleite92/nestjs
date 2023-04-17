@@ -4,7 +4,6 @@ import {
   IsOptional,
   IsUUID,
   Length,
-  MAX_LENGTH,
   Validate,
 } from 'class-validator';
 import { ValidCity } from '../pipes/ValidateCity.pipe';

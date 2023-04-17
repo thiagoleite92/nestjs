@@ -1,9 +1,9 @@
 import { Injectable } from '@nestjs/common';
 import { IFlightsRepository } from './flights.repository';
+import { Flight } from '@prisma/client';
+import { PrismaService } from '../../shared/prisma.service';
 import { CreateFlightDto } from '../dto/create-flight.dto';
-import { PrismaService } from 'src/module/shared/prisma.service';
-import { Flight, FlightStatus, Route } from '@prisma/client';
-import { MomentService } from 'src/module/shared/moment.service';
+import { MomentService } from '../../shared/moment.service';
 
 @Injectable()
 export class FlightsRepositoryImpl implements IFlightsRepository {

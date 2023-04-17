@@ -7,9 +7,8 @@ import {
   Matches,
   IsOptional,
   Validate,
-  IsEmpty,
 } from 'class-validator';
-import { ValidCity } from 'src/module/routes/pipes/ValidateCity.pipe';
+import { ValidCity } from '../../routes/pipes/ValidateCity.pipe';
 
 export class CreateUserDto {
   @Length(3)

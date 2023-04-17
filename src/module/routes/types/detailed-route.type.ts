@@ -1,4 +1,4 @@
-import { FlightStatus } from 'src/enums/flightStatus.enum';
+import { FlightStatus } from '../../../enums/flightstatus.enum';
 
 export type DetailedRoute = {
   id: string;

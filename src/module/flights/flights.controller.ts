@@ -9,16 +9,15 @@ import {
   Req,
   UseGuards,
 } from '@nestjs/common';
-import { FlightsService } from './flights.service';
-import { CreateFlightDto } from './dto/create-flight.dto';
-import { JwtAuthGuard } from '../auth/jwt-auth.guard';
-import { PilotGuard } from '../auth/pilot-role.guard';
-import { Roles } from 'src/decorator/role.decorator';
-import { Role } from 'src/enums/role.enum';
-import { UpdateFlightDto } from './dto/update-flight.dto';
 import { Request } from 'express';
 import { Flight } from '@prisma/client';
+import { Roles } from '../../decorator/role.decorator';
+import { JwtAuthGuard } from '../auth/jwt-auth.guard';
 import { RolesAuthGuard } from '../auth/roles-auth.guard';
+import { CreateFlightDto } from './dto/create-flight.dto';
+import { UpdateFlightDto } from './dto/update-flight.dto';
+import { FlightsService } from './flights.service';
+import { Role } from '../../enums/role.enum';
 
 @UseGuards(JwtAuthGuard, RolesAuthGuard)
 @Controller('/api/flight')

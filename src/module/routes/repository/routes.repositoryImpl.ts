@@ -1,10 +1,9 @@
-import { Injectable, InternalServerErrorException } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import { Route } from '@prisma/client';
-import { PrismaService } from 'src/module/shared/prisma.service';
 import { IRoutesRepository } from './routes.repository';
 import { UpdateRouteDto } from '../dto/update-route.dto';
 import { CreateRouteDto } from '../dto/create-route.dto';
-import { DetailedRoute } from '../types/detailed-route.type';
+import { PrismaService } from '../../shared/prisma.service';
 
 @Injectable()
 export class RoutesRepositoryImpl implements IRoutesRepository {
