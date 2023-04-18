@@ -38,6 +38,10 @@ export class UsersService {
       createUserDto.password,
     );
 
+    if (createUserDto.role === 'PILOT') {
+      createUserDto.isActive === false;
+    }
+
     return this.userRepository.saveUser(createUserDto);
   }
 

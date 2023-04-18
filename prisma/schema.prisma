@@ -16,7 +16,7 @@ model User {
   name           String
   password       String
   role           Role      @default(PILOT)
-  isActive       Boolean   @default(false) @map("is_active")
+  isActive       Boolean   @default(true) @map("is_active")
   flightExp      Int?      @default(0) @map("flight_exp")
   actualLocation String?
   createdAt      DateTime  @default(now()) @map("created_at")
