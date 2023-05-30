@@ -6,7 +6,8 @@ import {
   Length,
   Matches,
   IsOptional,
-  Validate,
+  MaxLength,
+  MinLength,
 } from 'class-validator';
 
 export class CreateUserDto {
@@ -22,6 +23,8 @@ export class CreateUserDto {
 
   @IsString()
   @IsNotEmpty()
+  @MaxLength(12)
+  @MinLength(6)
   @Matches(/((?=.*\d)|(?=.*\W+))(?![.\n])(?=.*[A-Z])(?=.*[a-z]).*$/, {
     message: 'Password do not match minimum security requirements',
   })

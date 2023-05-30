@@ -38,6 +38,9 @@ export class RoutesRepositoryImpl implements IRoutesRepository {
       where: {
         id: routeId,
       },
+      orderBy: {
+        createdAt: 'desc',
+      },
     });
   }
 
@@ -111,8 +114,10 @@ export class RoutesRepositoryImpl implements IRoutesRepository {
   }
 
   async getAll(): Promise<Route[]> {
-    return this.prisma.route.findMany({
-      where: { isAvailable: true },
+    const routes = await this.prisma.route.findMany({
+      where: { isDeleted: false },
     });
+
+    return routes;
   }
 }

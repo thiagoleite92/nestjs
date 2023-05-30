@@ -7,9 +7,10 @@ import { CreateRouteDto } from './dto/create-route.dto';
 import { UpdateRouteDto } from './dto/update-route.dto';
 import { UsersService } from '../users/users.service';
 import { RoutesRepositoryImpl } from './repository/routes.repositoryImpl';
-import { MomentService } from '../shared/moment.service';
 import { DetailedRoute } from './types/detailed-route.type';
 import { Route } from '@prisma/client';
+import { MomentService } from '../shared/moment.service';
+import { RouteResponse } from './types/route-response.type';
 
 @Injectable()
 export class RoutesService {
@@ -100,7 +101,22 @@ export class RoutesService {
     return this.routesRepository.updateRoute(routeId, updateRouteDto);
   }
 
-  async getAllRoutes(): Promise<Route[]> {
-    return this.routesRepository.getAll();
+  async getAllRoutes(): Promise<RouteResponse[]> {
+    const routes = await this.routesRepository.getAll();
+
+    return routes.map(
+      (route: Route): RouteResponse => ({
+        id: route.id,
+        Origem: route.origin,
+        Destino: route.destiny,
+        Disponível: route.isAvailable ? 'Sim' : 'Não',
+        Partida: this.moment.dateToString(route.departureTime),
+        Chegada: this.moment.dateToString(route.arrivalTime),
+        Duração:
+          route.durationEstimated === 1
+            ? `${route.durationEstimated} hora`
+            : `${route.durationEstimated} horas`,
+      }),
+    );
   }
 }

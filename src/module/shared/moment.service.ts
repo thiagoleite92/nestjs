@@ -14,4 +14,8 @@ export class MomentService {
   static getMomentPTBR() {
     return moment(new Date()).add(-3, 'hours').toISOString();
   }
+
+  dateToString(date?: any) {
+    return moment(new Date(date)).format('DD/MM/yyyy HH:mm');
+  }
 }

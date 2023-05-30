@@ -17,6 +17,7 @@ import { UpdateRouteDto } from './dto/update-route.dto';
 import { Route } from '@prisma/client';
 import { Roles } from '../../decorator/role.decorator';
 import { Role } from '../../enums/role.enum';
+import { RouteResponse } from './types/route-response.type';
 
 @UseGuards(JwtAuthGuard, AdminGuard)
 @Controller('/api/route')
@@ -45,7 +46,7 @@ export class RoutesController {
   @Get(':routeId?')
   async getRoutes(
     @Param('routeId') routeId?: string,
-  ): Promise<Route[] | Route | null> {
+  ): Promise<RouteResponse[] | Route | null> {
     return routeId
       ? await this.routesService.findRouteById(routeId)
       : await this.routesService.getAllRoutes();
