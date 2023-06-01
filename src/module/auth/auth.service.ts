@@ -29,10 +29,26 @@ export class AuthService {
     throw new UnauthorizedException('Usuário ou Senha Inválidos');
   }
 
-  async generateToken({ name, role, email, id }: User): Promise<any> {
+  async generateToken({
+    name,
+    role,
+    email,
+    id,
+    isAvailable,
+    actualLocation,
+    flightExp,
+  }: User): Promise<any> {
     return {
       accessToken: this.jwtService.sign({ sub: id, email, role }),
-      user: { email, name, role, id },
+      user: {
+        id,
+        email,
+        name,
+        role,
+        isAvailable: role === 'PILOT' ? isAvailable : '',
+        actualLocation: role === 'PILOT' ? actualLocation : '',
+        flightExp: role === 'PILOT' ? flightExp : '',
+      },
     };
   }
 

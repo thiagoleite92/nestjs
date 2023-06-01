@@ -29,6 +29,7 @@ export class RoutesRepositoryImpl implements IRoutesRepository {
         origin,
         destiny,
         departureTime,
+        isDeleted: false,
       },
     });
   }

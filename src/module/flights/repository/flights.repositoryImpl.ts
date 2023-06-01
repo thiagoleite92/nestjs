@@ -7,7 +7,7 @@ import { MomentService } from '../../shared/moment.service';
 
 @Injectable()
 export class FlightsRepositoryImpl implements IFlightsRepository {
-  constructor(private prisma: PrismaService, private moment: MomentService) {}
+  constructor(private prisma: PrismaService) {}
 
   async saveFlight({ pilotId, routeId }: CreateFlightDto): Promise<string> {
     try {
@@ -19,6 +19,10 @@ export class FlightsRepositoryImpl implements IFlightsRepository {
           data: {
             isAvailable: false,
           },
+        }),
+        this.prisma.user.update({
+          where: { id: pilotId },
+          data: { isAvailable: false },
         }),
         this.prisma.flight.create({
           data: { pilotId, routeId },

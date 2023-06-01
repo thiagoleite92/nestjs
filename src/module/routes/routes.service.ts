@@ -21,13 +21,15 @@ export class RoutesService {
   ) {}
 
   async saveRoute(createRouteDto: CreateRouteDto): Promise<string> {
+    const route = await this.checkDuplicateRoute(createRouteDto);
+
     if (!(await this.usersService.findById(createRouteDto.userId))) {
       throw new NotFoundException(
         'Usuário para criação da rota, não encontrado.',
       );
     }
 
-    if (await this.checkDuplicateRoute(createRouteDto)) {
+    if (route && !route.isDeleted) {
       throw new ConflictException('Rota duplicada, consulte a lista de rotas.');
     }
 
@@ -101,8 +103,10 @@ export class RoutesService {
     return this.routesRepository.updateRoute(routeId, updateRouteDto);
   }
 
-  async getAllRoutes(): Promise<RouteResponse[]> {
+  async getAllRoutes(): Promise<RouteResponse[] | any> {
     const routes = await this.routesRepository.getAll();
+
+    console.log(routes);
 
     return routes.map(
       (route: Route): RouteResponse => ({

@@ -17,6 +17,7 @@ model User {
   password       String
   role           Role      @default(PILOT)
   isActive       Boolean   @default(true) @map("is_active")
+  isAvailable    Boolean   @default(true) @map("is_available")
   flightExp      Int?      @default(0) @map("flight_exp")
   actualLocation String?
   createdAt      DateTime  @default(now()) @map("created_at")
