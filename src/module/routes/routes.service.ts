@@ -106,8 +106,6 @@ export class RoutesService {
   async getAllRoutes(): Promise<RouteResponse[] | any> {
     const routes = await this.routesRepository.getAll();
 
-    console.log(routes);
-
     return routes.map(
       (route: Route): RouteResponse => ({
         id: route.id,

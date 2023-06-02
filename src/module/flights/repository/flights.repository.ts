@@ -10,4 +10,5 @@ export interface IFlightsRepository {
   bookedFlightByPilotId(pilotId: string): Promise<Flight>;
   deleteFlight(flightId: string, routeId: string): Promise<void>;
   getAllFlights(): Promise<Flight[]>;
+  findFlightsByPilotId(pilotId: string): Promise<Flight[]>;
 }

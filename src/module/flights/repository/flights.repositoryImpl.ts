@@ -98,4 +98,11 @@ export class FlightsRepositoryImpl implements IFlightsRepository {
   async getAllFlights(): Promise<Flight[]> {
     return this.prisma.flight.findMany({});
   }
+
+  async findFlightsByPilotId(pilotId: string): Promise<Flight[]> {
+    return this.prisma.flight.findMany({
+      where: { pilotId: pilotId },
+      include: { route: true },
+    });
+  }
 }

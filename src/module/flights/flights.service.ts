@@ -92,17 +92,6 @@ export class FlightsService {
     return 'Voo atualizado com sucesso';
   }
 
-  async checkPilotLocationAndRouteOrigin(
-    pilotId: string,
-    routeId: string,
-  ): Promise<boolean> {
-    const { actualLocation } = await this.usersService.findById(pilotId);
-
-    const { origin } = await this.routesService.findRouteById(routeId);
-
-    return actualLocation === origin;
-  }
-
   async deleteFlight(flightId: string, pilotId: string): Promise<void> {
     const flight = await this.findFlightById(flightId);
     if (!flight) {
@@ -126,5 +115,24 @@ export class FlightsService {
 
   async findFlightById(flightId: string): Promise<Flight> {
     return this.flightsRepository.findFlightById(flightId);
+  }
+
+  async findFlightsByPilotId(pilotId: string): Promise<Flight[]> {
+    if (!(await this.usersService.findById(pilotId))) {
+      throw new NotFoundException('Piloto não encontrado');
+    }
+
+    return this.flightsRepository.findFlightsByPilotId(pilotId);
+  }
+
+  async checkPilotLocationAndRouteOrigin(
+    pilotId: string,
+    routeId: string,
+  ): Promise<boolean> {
+    const { actualLocation } = await this.usersService.findById(pilotId);
+
+    const { origin } = await this.routesService.findRouteById(routeId);
+
+    return actualLocation === origin;
   }
 }

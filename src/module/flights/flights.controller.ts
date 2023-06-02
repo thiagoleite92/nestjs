@@ -55,10 +55,21 @@ export class FlightsController {
     return this.flightsService.deleteFlight(flightId, pilotId);
   }
 
+  @Get(':pilotId/routes')
+  async getFlightsByPilotId(
+    @Param('pilotId') pilotId: string,
+  ): Promise<Flight[]> {
+    console.log('oi');
+
+    return await this.flightsService.findFlightsByPilotId(pilotId);
+  }
+
   @Get(':flightId?')
   async getFlights(
     @Param('flightId') flightId?: string,
   ): Promise<Flight[] | Flight | null> {
+    console.log('oi');
+
     return flightId
       ? await this.flightsService.findFlightById(flightId)
       : await this.flightsService.getAllFlights();
