@@ -2,8 +2,11 @@ import {
   IsDateString,
   IsNotEmpty,
   IsOptional,
+  IsString,
   IsUUID,
   Length,
+  Matches,
+  MinLength,
   Validate,
 } from 'class-validator';
 
@@ -17,15 +20,18 @@ export class CreateRouteDto {
   destiny: string;
 
   @IsNotEmpty()
-  durationEstimated: number;
+  @IsString()
+  @MinLength(4)
+  durationEstimated: string;
 
   @IsDateString()
-  departureTime;
+  @IsNotEmpty()
+  departureDate: string;
+
+  @IsDateString()
+  @IsNotEmpty()
+  arriveDate: string;
 
   @IsUUID()
   userId: string;
-
-  @IsDateString()
-  @IsOptional()
-  arrivalTime;
 }

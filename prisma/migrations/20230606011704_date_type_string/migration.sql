@@ -1,0 +1,3 @@
+-- AlterTable
+ALTER TABLE "TB_ROUTES" ALTER COLUMN "arrival_date" SET DATA TYPE TEXT,
+ALTER COLUMN "departure_date" SET DATA TYPE TEXT;

@@ -30,17 +30,16 @@ export class RoutesService {
     }
 
     if (route && !route.isDeleted) {
-      throw new ConflictException('Rota duplicada, consulte a lista de rotas.');
+      throw new ConflictException(
+        'Rota duplicada. Ajustes as informações da rota ou consulte a lista de rotas.',
+      );
     }
 
-    const { departureTime, durationEstimated } = createRouteDto;
-
-    const arrivalTime = this.moment.adjustArrivalTime(
-      departureTime,
-      durationEstimated,
+    const durationAdjust = this.moment.adjustDurationTime(
+      createRouteDto.durationEstimated,
     );
 
-    createRouteDto.arrivalTime = arrivalTime;
+    createRouteDto.durationEstimated = durationAdjust;
 
     return this.routesRepository.saveRoute(createRouteDto);
   }
@@ -55,14 +54,16 @@ export class RoutesService {
     let flightId = null;
     const detailedRoute = (await this.routesRepository.findDetailedRoute(
       routeId,
-    )) as DetailedRoute;
+    )) as unknown;
 
-    if (!detailedRoute) {
+    const teste = detailedRoute as DetailedRoute;
+
+    if (!teste) {
       throw new NotFoundException('Rota não encontrada.');
     }
 
-    if (detailedRoute.Flight.length) {
-      flightId = detailedRoute.Flight[0].id;
+    if (teste.Flight.length) {
+      flightId = teste.Flight[0].id;
     }
 
     return this.routesRepository.deleteRoute(routeId, flightId);
@@ -76,7 +77,7 @@ export class RoutesService {
     routeId: string,
     updateRouteDto: UpdateRouteDto,
   ): Promise<string> {
-    let newArrivalTime: string = null;
+    let newarriveDate: string = null;
     const route = await this.routesRepository.findRouteById(routeId);
 
     if (!route) {
@@ -90,14 +91,14 @@ export class RoutesService {
     }
 
     if (
-      route.departureTime !== updateRouteDto.departureTime ||
+      route.departureDate !== updateRouteDto.departureDate ||
       route.durationEstimated !== updateRouteDto.durationEstimated
     ) {
-      newArrivalTime = this.moment.adjustArrivalTime(
-        updateRouteDto.departureTime || route.departureTime,
+      newarriveDate = this.moment.adjustArrivalTime(
+        updateRouteDto.departureDate || route.departureDate,
         updateRouteDto.durationEstimated || route.durationEstimated,
       );
-      updateRouteDto.arrivalTime = newArrivalTime;
+      updateRouteDto.arriveDate = newarriveDate;
     }
 
     return this.routesRepository.updateRoute(routeId, updateRouteDto);
@@ -112,10 +113,10 @@ export class RoutesService {
         Origem: route.origin,
         Destino: route.destiny,
         Disponível: route.isAvailable ? 'Sim' : 'Não',
-        Partida: this.moment.dateToString(route.departureTime),
-        Chegada: this.moment.dateToString(route.arrivalTime),
+        Partida: this.moment.dateToString(route.departureDate),
+        Chegada: this.moment.dateToString(route.arriveDate),
         Duração:
-          route.durationEstimated === 1
+          route.durationEstimated === '1'
             ? `${route.durationEstimated} hora`
             : `${route.durationEstimated} horas`,
       }),

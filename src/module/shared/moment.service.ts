@@ -7,7 +7,7 @@ export class MomentService {
     return moment(departureTime, moment.ISO_8601, true).isValid();
   }
 
-  adjustArrivalTime(departureTime: string, durationEstimated: number) {
+  adjustArrivalTime(departureTime: string, durationEstimated: string) {
     return moment(departureTime).add(durationEstimated, 'hours').toISOString();
   }
 
@@ -17,5 +17,11 @@ export class MomentService {
 
   dateToString(date?: any) {
     return moment(new Date(date)).format('DD/MM/yyyy HH:mm');
+  }
+
+  adjustDurationTime(time: string): string {
+    const [pos1, pos2, pos3, pos4] = time.split('');
+
+    return `${pos1}${pos2}:${pos3}${pos4}`;
   }
 }

@@ -59,8 +59,6 @@ export class FlightsController {
   async getFlightsByPilotId(
     @Param('pilotId') pilotId: string,
   ): Promise<Flight[]> {
-    console.log('oi');
-
     return await this.flightsService.findFlightsByPilotId(pilotId);
   }
 
@@ -68,8 +66,6 @@ export class FlightsController {
   async getFlights(
     @Param('flightId') flightId?: string,
   ): Promise<Flight[] | Flight | null> {
-    console.log('oi');
-
     return flightId
       ? await this.flightsService.findFlightById(flightId)
       : await this.flightsService.getAllFlights();

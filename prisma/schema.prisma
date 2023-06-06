@@ -32,9 +32,9 @@ model Route {
   id                String    @id @default(uuid())
   origin            String
   destiny           String
-  durationEstimated Int       @map("duration_estimated")
-  departureTime     DateTime  @default(now()) @map("departure_time")
-  arrivalTime       DateTime  @map("arrival_time")
+  durationEstimated String    @map("duration_estimated")
+  departureDate     String    @map("departure_date")
+  arriveDate        String    @map("arrival_date")
   isAvailable       Boolean   @default(true)
   createdAt         DateTime  @default(now()) @map("created_at")
   updatedAt         DateTime? @updatedAt @map("updated_at")

@@ -6,6 +6,7 @@ import {
   Param,
   Patch,
   Post,
+  Req,
   UseGuards,
 } from '@nestjs/common';
 import { JwtAuthGuard } from '../auth/jwt-auth.guard';
@@ -17,6 +18,7 @@ import { Route } from '@prisma/client';
 import { Roles } from '../../decorator/role.decorator';
 import { Role } from '../../enums/role.enum';
 import { RouteResponse } from './types/route-response.type';
+import { ResponseModel } from '../shared/ResponseModel';
 
 @UseGuards(JwtAuthGuard)
 @Controller('/api/route')
@@ -26,8 +28,13 @@ export class RoutesController {
 
   @UseGuards(AdminGuard)
   @Post()
-  async create(@Body() createRouteDto: CreateRouteDto) {
-    return this.routesService.saveRoute(createRouteDto);
+  async create(
+    @Req() req,
+    @Body() createRouteDto: CreateRouteDto,
+  ): Promise<ResponseModel> {
+    return ResponseModel.response(
+      await this.routesService.saveRoute(createRouteDto),
+    );
   }
 
   @UseGuards(AdminGuard)
