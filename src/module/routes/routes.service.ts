@@ -35,12 +35,6 @@ export class RoutesService {
       );
     }
 
-    const durationAdjust = this.moment.adjustDurationTime(
-      createRouteDto.durationEstimated,
-    );
-
-    createRouteDto.durationEstimated = durationAdjust;
-
     return this.routesRepository.saveRoute(createRouteDto);
   }
 
@@ -70,7 +64,13 @@ export class RoutesService {
   }
 
   async findRouteById(routeId: string) {
-    return this.routesRepository.findRouteById(routeId);
+    const route = await this.routesRepository.findRouteById(routeId);
+
+    route.durationEstimated = this.moment.secondsToHoursAndMinutes(
+      route.durationEstimated,
+    );
+
+    return route;
   }
 
   async updateRoute(
@@ -116,9 +116,8 @@ export class RoutesService {
         Partida: this.moment.dateToString(route.departureDate),
         Chegada: this.moment.dateToString(route.arriveDate),
         Duração:
-          route.durationEstimated === '1'
-            ? `${route.durationEstimated} hora`
-            : `${route.durationEstimated} horas`,
+          this.moment.secondsToHoursAndMinutes(route.durationEstimated) +
+          ' horas',
       }),
     );
   }

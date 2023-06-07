@@ -19,9 +19,10 @@ export class MomentService {
     return moment(new Date(date)).format('DD/MM/yyyy HH:mm');
   }
 
-  adjustDurationTime(time: string): string {
-    const [pos1, pos2, pos3, pos4] = time.split('');
+  secondsToHoursAndMinutes(segundos: string): string {
+    const hours = Math.floor(Number(segundos) / 3600); // Calcula as horas inteiras
+    const minutes = Math.floor((Number(segundos) % 3600) / 60); // Calcula os minutos restantes
 
-    return `${pos1}${pos2}:${pos3}${pos4}`;
+    return `${hours}:${minutes}`;
   }
 }

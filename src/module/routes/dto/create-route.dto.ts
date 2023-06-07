@@ -1,14 +1,13 @@
+import { Transform } from 'class-transformer';
 import {
   IsDateString,
   IsNotEmpty,
-  IsOptional,
   IsString,
   IsUUID,
   Length,
-  Matches,
   MinLength,
-  Validate,
 } from 'class-validator';
+import hoursToSeconds from '../../../utils/time-adjust';
 
 export class CreateRouteDto {
   @IsNotEmpty()
@@ -22,6 +21,7 @@ export class CreateRouteDto {
   @IsNotEmpty()
   @IsString()
   @MinLength(4)
+  @Transform(({ value }) => hoursToSeconds(value))
   durationEstimated: string;
 
   @IsDateString()
