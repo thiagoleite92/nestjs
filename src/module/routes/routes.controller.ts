@@ -48,8 +48,10 @@ export class RoutesController {
   async updateRoute(
     @Param('routeId') routeId: string,
     @Body() updateRouteDto: UpdateRouteDto,
-  ): Promise<string> {
-    return this.routesService.updateRoute(routeId, updateRouteDto);
+  ): Promise<ResponseModel> {
+    return ResponseModel.response(
+      await this.routesService.updateRoute(routeId, updateRouteDto),
+    );
   }
 
   @Get(':routeId?')
