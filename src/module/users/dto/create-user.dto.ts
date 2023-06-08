@@ -40,5 +40,6 @@ export class CreateUserDto {
   role: Role;
 
   @IsNotEmpty()
+  @IsOptional()
   actualLocation: string;
 }

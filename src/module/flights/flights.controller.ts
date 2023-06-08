@@ -18,6 +18,7 @@ import { CreateFlightDto } from './dto/create-flight.dto';
 import { UpdateFlightDto } from './dto/update-flight.dto';
 import { FlightsService } from './flights.service';
 import { Role } from '../../enums/role.enum';
+import { ResponseModel } from '../shared/ResponseModel';
 
 @UseGuards(JwtAuthGuard, RolesAuthGuard)
 @Controller('/api/flight')
@@ -26,8 +27,12 @@ export class FlightsController {
 
   @Post()
   @Roles(Role.PILOT)
-  async saveFlight(@Body() createFlightDto: CreateFlightDto): Promise<string> {
-    return this.flightsService.saveFlight(createFlightDto);
+  async saveFlight(
+    @Body() createFlightDto: CreateFlightDto,
+  ): Promise<ResponseModel> {
+    return ResponseModel.response(
+      await this.flightsService.saveFlight(createFlightDto),
+    );
   }
 
   @Patch(':flightId')
