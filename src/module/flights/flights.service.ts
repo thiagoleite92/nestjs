@@ -21,7 +21,11 @@ export class FlightsService {
   async saveFlight(createFlightDto: CreateFlightDto): Promise<string> {
     const { routeId, pilotId } = createFlightDto;
 
-    if (await this.flightsRepository.bookedFlightByPilotId(pilotId)) {
+    const { isAvailable: pilotStatus } = await this.usersService.findById(
+      pilotId,
+    );
+
+    if (!pilotStatus) {
       throw new BadRequestException('Esse piloto já tem uma rota agendada.');
     }
 
@@ -32,11 +36,7 @@ export class FlightsService {
     }
 
     if (!route.isAvailable) {
-      throw new BadRequestException('Rota não está disponível');
-    }
-
-    if (await this.flightsRepository.findFlightByRouteId(routeId)) {
-      throw new ConflictException('Rota já está agendada para outro piloto.');
+      throw new BadRequestException('Rota já está agendada para outro piloto.');
     }
 
     if (!(await this.checkPilotLocationAndRouteOrigin(pilotId, routeId))) {
@@ -92,21 +92,27 @@ export class FlightsService {
     return 'Voo atualizado com sucesso';
   }
 
-  async deleteFlight(flightId: string, pilotId: string): Promise<void> {
+  async deleteFlight(flightId: string, userId: string): Promise<void> {
+    const user = await this.usersService.findById(userId);
+
+    if (!user) {
+      throw new NotFoundException('Usuário não encontrado');
+    }
+
     const flight = await this.findFlightById(flightId);
+
     if (!flight) {
       throw new NotFoundException('Voo não encontrado');
     }
-
     const currentPilotId = flight.pilotId;
 
-    if (currentPilotId !== pilotId) {
-      throw new BadRequestException(
-        'Apenas o piloto que agendou a viagem pode deleta-la',
-      );
+    if (user.role === 'ADMIN' || currentPilotId === flight.pilotId) {
+      return this.flightsRepository.deleteFlight(flight);
     }
 
-    return this.flightsRepository.deleteFlight(flightId, flight.routeId);
+    throw new BadRequestException(
+      'Apenas o piloto que agendou a viagem pode deleta-la',
+    );
   }
 
   async getAllFlights(): Promise<Flight[]> {

@@ -3,7 +3,6 @@ import { IFlightsRepository } from './flights.repository';
 import { Flight } from '@prisma/client';
 import { PrismaService } from '../../shared/prisma.service';
 import { CreateFlightDto } from '../dto/create-flight.dto';
-import { MomentService } from '../../shared/moment.service';
 
 @Injectable()
 export class FlightsRepositoryImpl implements IFlightsRepository {
@@ -74,8 +73,8 @@ export class FlightsRepositoryImpl implements IFlightsRepository {
     }
   }
 
-  async bookedFlightByPilotId(pilotId: string): Promise<Flight> {
-    return this.prisma.flight.findFirst({
+  async bookedFlightByPilotId(pilotId: string): Promise<Flight[] | []> {
+    return this.prisma.flight.findMany({
       where: {
         pilotId,
         flightStatus: 'BOOKED',
@@ -83,20 +82,26 @@ export class FlightsRepositoryImpl implements IFlightsRepository {
     });
   }
 
-  async deleteFlight(flightId: string, routeId: string): Promise<void> {
+  async deleteFlight(flight: Flight): Promise<void> {
     await this.prisma.$transaction([
       this.prisma.route.update({
-        where: { id: routeId },
+        where: { id: flight.routeId },
+        data: { isAvailable: true },
+      }),
+      this.prisma.user.update({
+        where: { id: flight.pilotId },
         data: { isAvailable: true },
       }),
       this.prisma.flight.delete({
-        where: { id: flightId },
+        where: { id: flight.id },
       }),
     ]);
   }
 
   async getAllFlights(): Promise<Flight[]> {
-    return this.prisma.flight.findMany({});
+    return this.prisma.flight.findMany({
+      orderBy: { createdAt: 'desc' },
+    });
   }
 
   async findFlightsByPilotId(pilotId: string): Promise<Flight[]> {

@@ -50,14 +50,11 @@ export class FlightsController {
   }
 
   @Delete(':flightId')
-  @Roles(Role.PILOT)
   async deleteFlight(
     @Req() req: Request,
     @Param('flightId') flightId: string,
   ): Promise<void> {
-    const { id: pilotId } = req.user;
-
-    return this.flightsService.deleteFlight(flightId, pilotId);
+    return this.flightsService.deleteFlight(flightId, req.user.id);
   }
 
   @Get(':pilotId/routes')
