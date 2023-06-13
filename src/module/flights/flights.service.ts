@@ -9,6 +9,7 @@ import { CreateFlightDto } from './dto/create-flight.dto';
 import { RoutesService } from '../routes/routes.service';
 import { UsersService } from '../users/users.service';
 import { Flight } from '@prisma/client';
+import { MomentService } from '../shared/moment.service';
 
 @Injectable()
 export class FlightsService {
@@ -16,7 +17,12 @@ export class FlightsService {
     private flightsRepository: FlightsRepositoryImpl,
     private routesService: RoutesService,
     private usersService: UsersService,
+    private moment: MomentService,
   ) {}
+
+  async getFlights(params: { skip?: number; take: number }): Promise<Flight[]> {
+    return this.flightsRepository.getAllFlights(params);
+  }
 
   async saveFlight(createFlightDto: CreateFlightDto): Promise<string> {
     const { routeId, pilotId } = createFlightDto;
@@ -115,20 +121,20 @@ export class FlightsService {
     );
   }
 
-  async getAllFlights(): Promise<Flight[]> {
-    return this.flightsRepository.getAllFlights();
-  }
-
   async findFlightById(flightId: string): Promise<Flight> {
-    return this.flightsRepository.findFlightById(flightId);
-  }
+    const flight = await this.flightsRepository.findFlightById(flightId);
 
-  async findFlightsByPilotId(pilotId: string): Promise<Flight[]> {
-    if (!(await this.usersService.findById(pilotId))) {
-      throw new NotFoundException('Piloto não encontrado');
+    if (flight?.user?.password) {
+      delete flight?.user.password;
     }
 
-    return this.flightsRepository.findFlightsByPilotId(pilotId);
+    if (flight?.route?.durationEstimated) {
+      flight.route.durationEstimated = this.moment.secondsToHoursAndMinutes(
+        flight.route.durationEstimated,
+      );
+    }
+
+    return flight;
   }
 
   async checkPilotLocationAndRouteOrigin(

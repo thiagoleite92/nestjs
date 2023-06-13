@@ -35,8 +35,11 @@ export class FlightsRepositoryImpl implements IFlightsRepository {
     }
   }
 
-  async findFlightById(flightId: string): Promise<Flight> {
-    return await this.prisma.flight.findUnique({ where: { id: flightId } });
+  async findFlightById(flightId: string): Promise<any> {
+    return await this.prisma.flight.findUnique({
+      where: { id: flightId },
+      include: { user: true, route: true },
+    });
   }
 
   async findFlightByRouteId(routeId: string): Promise<Flight> {
@@ -98,9 +101,14 @@ export class FlightsRepositoryImpl implements IFlightsRepository {
     ]);
   }
 
-  async getAllFlights(): Promise<Flight[]> {
+  async getAllFlights(params: {
+    skip?: number;
+    take: number;
+  }): Promise<Flight[]> {
     return this.prisma.flight.findMany({
       orderBy: { createdAt: 'desc' },
+      ...(params && params.skip && { skip: params.skip }),
+      ...(params && params.take && { take: params.take }),
     });
   }
 
