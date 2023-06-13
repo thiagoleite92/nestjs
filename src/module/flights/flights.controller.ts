@@ -6,6 +6,7 @@ import {
   Param,
   Patch,
   Post,
+  Query,
   Req,
   UseGuards,
 } from '@nestjs/common';
@@ -18,6 +19,8 @@ import { CreateFlightDto } from './dto/create-flight.dto';
 import { UpdateFlightDto } from './dto/update-flight.dto';
 import { FlightsService } from './flights.service';
 import { Role } from '../../enums/role.enum';
+import { ResponseModel } from '../shared/ResponseModel';
+import { QuerypParamsDto } from './dto/params.dto';
 
 @UseGuards(JwtAuthGuard, RolesAuthGuard)
 @Controller('/api/flight')
@@ -26,8 +29,12 @@ export class FlightsController {
 
   @Post()
   @Roles(Role.PILOT)
-  async saveFlight(@Body() createFlightDto: CreateFlightDto): Promise<string> {
-    return this.flightsService.saveFlight(createFlightDto);
+  async saveFlight(
+    @Body() createFlightDto: CreateFlightDto,
+  ): Promise<ResponseModel> {
+    return ResponseModel.response(
+      await this.flightsService.saveFlight(createFlightDto),
+    );
   }
 
   @Patch(':flightId')
@@ -45,22 +52,22 @@ export class FlightsController {
   }
 
   @Delete(':flightId')
-  @Roles(Role.PILOT)
   async deleteFlight(
     @Req() req: Request,
     @Param('flightId') flightId: string,
   ): Promise<void> {
-    const { id: pilotId } = req.user;
-
-    return this.flightsService.deleteFlight(flightId, pilotId);
+    return this.flightsService.deleteFlight(flightId, req.user.id);
   }
 
-  @Get(':flightId?')
+  @Get(':flightId')
+  async getFlightById(@Param('flightId') flightId: string): Promise<Flight> {
+    return await this.flightsService.findFlightById(flightId);
+  }
+
+  @Get()
   async getFlights(
-    @Param('flightId') flightId?: string,
+    @Query() params?: QuerypParamsDto,
   ): Promise<Flight[] | Flight | null> {
-    return flightId
-      ? await this.flightsService.findFlightById(flightId)
-      : await this.flightsService.getAllFlights();
+    return await this.flightsService.getFlights(params);
   }
 }

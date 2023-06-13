@@ -5,10 +5,11 @@ import {
 } from '@nestjs/common';
 import { User } from '@prisma/client';
 import { BcryptService } from '../shared/bcrypt.service';
-import { AllUsersResponseDto } from './dto/all-users.dto';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { UserRepositoryImpl } from './repository/users.repositoryImpl';
+import { UserResponse } from './types/user-response.type';
+import { UpdateUserStatus } from './dto/update-user-status.dto';
 
 @Injectable()
 export class UsersService {
@@ -17,17 +18,13 @@ export class UsersService {
     private bcrypt: BcryptService,
   ) {}
 
-  async findAll(): Promise<AllUsersResponseDto[]> {
+  async findAll(): Promise<UserResponse[]> {
     const users = await this.userRepository.getAll();
 
-    users.forEach((user) => {
-      this.excludeKeys(user, ['password']);
-    });
-
-    return users;
+    return users.map(this.parserUserList);
   }
 
-  async create(createUserDto: CreateUserDto) {
+  async create(createUserDto: CreateUserDto): Promise<string> {
     if (await this.findByEmail(createUserDto.email)) {
       throw new ConflictException({
         message: 'Email já registrado',
@@ -105,5 +102,39 @@ export class UsersService {
       delete user[key];
     }
     return user;
+  }
+
+  async updateStatus(
+    userId: string,
+    isActive: boolean,
+  ): Promise<{ message: string }> {
+    if (!(await this.findById(userId))) {
+      throw new NotFoundException({
+        erro: 'Usuário não encontrado',
+      });
+    }
+
+    return {
+      message: await this.userRepository.updateStatus(userId, isActive),
+    };
+  }
+
+  private parserUserList(user: User) {
+    return {
+      id: user.id,
+      Status: user.isActive,
+      Nome: user.name,
+      Função: user.role === 'PILOT' ? 'Piloto' : 'Administrador',
+      ...(user.role && user.role === 'PILOT'
+        ? {
+            'Tempo de voo':
+              user.flightExp === 1
+                ? `${user.flightExp} hora`
+                : `${user.flightExp} horas`,
+          }
+        : { 'Tempo de voo': 'Não se aplica' }),
+      Localização:
+        user.role === 'PILOT' ? user.actualLocation : 'Não se aplica',
+    };
   }
 }

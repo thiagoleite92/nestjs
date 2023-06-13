@@ -9,6 +9,7 @@ import { CreateFlightDto } from './dto/create-flight.dto';
 import { RoutesService } from '../routes/routes.service';
 import { UsersService } from '../users/users.service';
 import { Flight } from '@prisma/client';
+import { MomentService } from '../shared/moment.service';
 
 @Injectable()
 export class FlightsService {
@@ -16,12 +17,21 @@ export class FlightsService {
     private flightsRepository: FlightsRepositoryImpl,
     private routesService: RoutesService,
     private usersService: UsersService,
+    private moment: MomentService,
   ) {}
+
+  async getFlights(params: { skip?: number; take: number }): Promise<Flight[]> {
+    return this.flightsRepository.getAllFlights(params);
+  }
 
   async saveFlight(createFlightDto: CreateFlightDto): Promise<string> {
     const { routeId, pilotId } = createFlightDto;
 
-    if (await this.flightsRepository.bookedFlightByPilotId(pilotId)) {
+    const { isAvailable: pilotStatus } = await this.usersService.findById(
+      pilotId,
+    );
+
+    if (!pilotStatus) {
       throw new BadRequestException('Esse piloto já tem uma rota agendada.');
     }
 
@@ -32,11 +42,7 @@ export class FlightsService {
     }
 
     if (!route.isAvailable) {
-      throw new BadRequestException('Rota não está disponível');
-    }
-
-    if (await this.flightsRepository.findFlightByRouteId(routeId)) {
-      throw new ConflictException('Rota já está agendada para outro piloto.');
+      throw new BadRequestException('Rota já está agendada para outro piloto.');
     }
 
     if (!(await this.checkPilotLocationAndRouteOrigin(pilotId, routeId))) {
@@ -92,6 +98,45 @@ export class FlightsService {
     return 'Voo atualizado com sucesso';
   }
 
+  async deleteFlight(flightId: string, userId: string): Promise<void> {
+    const user = await this.usersService.findById(userId);
+
+    if (!user) {
+      throw new NotFoundException('Usuário não encontrado');
+    }
+
+    const flight = await this.findFlightById(flightId);
+
+    if (!flight) {
+      throw new NotFoundException('Voo não encontrado');
+    }
+    const currentPilotId = flight.pilotId;
+
+    if (user.role === 'ADMIN' || currentPilotId === flight.pilotId) {
+      return this.flightsRepository.deleteFlight(flight);
+    }
+
+    throw new BadRequestException(
+      'Apenas o piloto que agendou a viagem pode deleta-la',
+    );
+  }
+
+  async findFlightById(flightId: string): Promise<Flight> {
+    const flight = await this.flightsRepository.findFlightById(flightId);
+
+    if (flight?.user?.password) {
+      delete flight?.user.password;
+    }
+
+    if (flight?.route?.durationEstimated) {
+      flight.route.durationEstimated = this.moment.secondsToHoursAndMinutes(
+        flight.route.durationEstimated,
+      );
+    }
+
+    return flight;
+  }
+
   async checkPilotLocationAndRouteOrigin(
     pilotId: string,
     routeId: string,
@@ -101,30 +146,5 @@ export class FlightsService {
     const { origin } = await this.routesService.findRouteById(routeId);
 
     return actualLocation === origin;
-  }
-
-  async deleteFlight(flightId: string, pilotId: string): Promise<void> {
-    const flight = await this.findFlightById(flightId);
-    if (!flight) {
-      throw new NotFoundException('Voo não encontrado');
-    }
-
-    const currentPilotId = flight.pilotId;
-
-    if (currentPilotId !== pilotId) {
-      throw new BadRequestException(
-        'Apenas o piloto que agendou a viagem pode deleta-la',
-      );
-    }
-
-    return this.flightsRepository.deleteFlight(flightId, flight.routeId);
-  }
-
-  async getAllFlights(): Promise<Flight[]> {
-    return this.flightsRepository.getAllFlights();
-  }
-
-  async findFlightById(flightId: string): Promise<Flight> {
-    return this.flightsRepository.findFlightById(flightId);
   }
 }

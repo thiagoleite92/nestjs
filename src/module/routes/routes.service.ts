@@ -7,9 +7,10 @@ import { CreateRouteDto } from './dto/create-route.dto';
 import { UpdateRouteDto } from './dto/update-route.dto';
 import { UsersService } from '../users/users.service';
 import { RoutesRepositoryImpl } from './repository/routes.repositoryImpl';
-import { MomentService } from '../shared/moment.service';
 import { DetailedRoute } from './types/detailed-route.type';
 import { Route } from '@prisma/client';
+import { MomentService } from '../shared/moment.service';
+import { RouteResponse } from './types/route-response.type';
 
 @Injectable()
 export class RoutesService {
@@ -20,24 +21,19 @@ export class RoutesService {
   ) {}
 
   async saveRoute(createRouteDto: CreateRouteDto): Promise<string> {
+    const route = await this.checkDuplicateRoute(createRouteDto);
+
     if (!(await this.usersService.findById(createRouteDto.userId))) {
       throw new NotFoundException(
         'Usuário para criação da rota, não encontrado.',
       );
     }
 
-    if (await this.checkDuplicateRoute(createRouteDto)) {
-      throw new ConflictException('Rota duplicada, consulte a lista de rotas.');
+    if (route && !route.isDeleted) {
+      throw new ConflictException(
+        'Rota duplicada. Ajustes as informações da rota ou consulte a lista de rotas.',
+      );
     }
-
-    const { departureTime, durationEstimated } = createRouteDto;
-
-    const arrivalTime = this.moment.adjustArrivalTime(
-      departureTime,
-      durationEstimated,
-    );
-
-    createRouteDto.arrivalTime = arrivalTime;
 
     return this.routesRepository.saveRoute(createRouteDto);
   }
@@ -52,28 +48,36 @@ export class RoutesService {
     let flightId = null;
     const detailedRoute = (await this.routesRepository.findDetailedRoute(
       routeId,
-    )) as DetailedRoute;
+    )) as unknown;
 
-    if (!detailedRoute) {
+    const teste = detailedRoute as DetailedRoute;
+
+    if (!teste) {
       throw new NotFoundException('Rota não encontrada.');
     }
 
-    if (detailedRoute.Flight.length) {
-      flightId = detailedRoute.Flight[0].id;
+    if (teste.Flight.length) {
+      flightId = teste.Flight[0].id;
     }
 
     return this.routesRepository.deleteRoute(routeId, flightId);
   }
 
   async findRouteById(routeId: string) {
-    return this.routesRepository.findRouteById(routeId);
+    const route = await this.routesRepository.findRouteById(routeId);
+
+    route.durationEstimated = this.moment.secondsToHoursAndMinutes(
+      route.durationEstimated,
+    );
+
+    return route;
   }
 
   async updateRoute(
     routeId: string,
     updateRouteDto: UpdateRouteDto,
   ): Promise<string> {
-    let newArrivalTime: string = null;
+    let newarriveDate: string = null;
     const route = await this.routesRepository.findRouteById(routeId);
 
     if (!route) {
@@ -87,20 +91,34 @@ export class RoutesService {
     }
 
     if (
-      route.departureTime !== updateRouteDto.departureTime ||
+      route.departureDate !== updateRouteDto.departureDate ||
       route.durationEstimated !== updateRouteDto.durationEstimated
     ) {
-      newArrivalTime = this.moment.adjustArrivalTime(
-        updateRouteDto.departureTime || route.departureTime,
+      newarriveDate = this.moment.adjustArrivalTime(
+        updateRouteDto.departureDate || route.departureDate,
         updateRouteDto.durationEstimated || route.durationEstimated,
       );
-      updateRouteDto.arrivalTime = newArrivalTime;
+      updateRouteDto.arriveDate = newarriveDate;
     }
 
     return this.routesRepository.updateRoute(routeId, updateRouteDto);
   }
 
-  async getAllRoutes(): Promise<Route[]> {
-    return this.routesRepository.getAll();
+  async getAllRoutes(): Promise<RouteResponse[] | any> {
+    const routes = await this.routesRepository.getAll();
+
+    return routes.map(
+      (route: Route): RouteResponse => ({
+        id: route.id,
+        Origem: route.origin,
+        Destino: route.destiny,
+        Disponível: route.isAvailable ? 'Sim' : 'Não',
+        Partida: this.moment.dateToString(route.departureDate),
+        Chegada: this.moment.dateToString(route.arriveDate),
+        Duração:
+          this.moment.secondsToHoursAndMinutes(route.durationEstimated) +
+          ' horas',
+      }),
+    );
   }
 }

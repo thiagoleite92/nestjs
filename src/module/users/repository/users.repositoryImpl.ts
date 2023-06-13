@@ -10,16 +10,22 @@ export class UserRepositoryImpl implements IUserRepository {
   constructor(private prisma: PrismaService) {}
 
   async findUserById(userId: string): Promise<User | null> {
-    return await this.prisma.user.findFirst({
+    const user = await this.prisma.user.findFirst({
       where: {
         id: userId,
       },
     });
+
+    return user;
   }
 
   async getAll(): Promise<User[]> {
     try {
-      const users = await this.prisma.user.findMany({});
+      const users = await this.prisma.user.findMany({
+        orderBy: {
+          createdAt: 'asc',
+        },
+      });
 
       return users;
     } catch (err) {
@@ -51,15 +57,7 @@ export class UserRepositoryImpl implements IUserRepository {
 
   async updateUser(
     userId: string,
-    {
-      name,
-      email,
-      password,
-      role,
-      isActive,
-      flightExp,
-      actualLocation,
-    }: UpdateUserDto,
+    { name, email, role, isActive, flightExp, actualLocation }: UpdateUserDto,
   ): Promise<User> {
     try {
       const update = await this.prisma.user.update({
@@ -69,7 +67,6 @@ export class UserRepositoryImpl implements IUserRepository {
         data: {
           name,
           email,
-          password,
           role,
           isActive,
           flightExp,
@@ -92,11 +89,22 @@ export class UserRepositoryImpl implements IUserRepository {
     });
   }
 
-  async findById(userId: string): Promise<User | null> {
-    return await this.prisma.user.findFirst({
-      where: {
-        id: userId,
-      },
-    });
+  async updateStatus(userId: string, isActive: boolean): Promise<string> {
+    try {
+      await this.prisma.user.update({
+        where: {
+          id: userId,
+        },
+        data: {
+          isActive,
+        },
+      });
+
+      return 'Usuário Atualizado.';
+    } catch (error) {
+      console.log(error);
+
+      return 'Ocorreu um erro inesperado';
+    }
   }
 }

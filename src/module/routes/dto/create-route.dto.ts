@@ -1,11 +1,13 @@
+import { Transform } from 'class-transformer';
 import {
   IsDateString,
   IsNotEmpty,
-  IsOptional,
+  IsString,
   IsUUID,
   Length,
-  Validate,
+  MinLength,
 } from 'class-validator';
+import hoursToSeconds from '../../../utils/time-adjust';
 
 export class CreateRouteDto {
   @IsNotEmpty()
@@ -17,15 +19,19 @@ export class CreateRouteDto {
   destiny: string;
 
   @IsNotEmpty()
-  durationEstimated: number;
+  @IsString()
+  @MinLength(4)
+  @Transform(({ value }) => hoursToSeconds(value))
+  durationEstimated: string;
 
   @IsDateString()
-  departureTime;
+  @IsNotEmpty()
+  departureDate: string;
+
+  @IsDateString()
+  @IsNotEmpty()
+  arriveDate: string;
 
   @IsUUID()
   userId: string;
-
-  @IsDateString()
-  @IsOptional()
-  arrivalTime;
 }

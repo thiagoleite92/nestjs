@@ -9,4 +9,5 @@ export interface IUserRepository {
   getAll(): Promise<User[]>;
   findUserByEmail(email: string): Promise<User | null>;
   findUserById(userId: string): Promise<User | null>;
+  updateStatus(userId: string, isActive: boolean): Promise<string>;
 }

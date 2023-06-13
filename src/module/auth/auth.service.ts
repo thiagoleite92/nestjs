@@ -1,6 +1,7 @@
 import {
   BadRequestException,
   Injectable,
+  NotFoundException,
   UnauthorizedException,
 } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
@@ -20,7 +21,7 @@ export class AuthService {
     const user = await this.usersService.findByEmail(email);
 
     if (!user) {
-      throw new UnauthorizedException('Usuário ou Senha Inválidos');
+      throw new NotFoundException('Usuário não encontrado');
     }
     if (await this.bcrypt.comparePassword(password, user.password)) {
       return user;
@@ -28,10 +29,26 @@ export class AuthService {
     throw new UnauthorizedException('Usuário ou Senha Inválidos');
   }
 
-  async generateToken({ name, role, email, id }: User): Promise<any> {
+  async generateToken({
+    name,
+    role,
+    email,
+    id,
+    isAvailable,
+    actualLocation,
+    flightExp,
+  }: User): Promise<any> {
     return {
       accessToken: this.jwtService.sign({ sub: id, email, role }),
-      user: { email, name, role, id },
+      user: {
+        id,
+        email,
+        name,
+        role,
+        isAvailable: role === 'PILOT' ? isAvailable : '',
+        actualLocation: role === 'PILOT' ? actualLocation : '',
+        flightExp: role === 'PILOT' ? flightExp : '',
+      },
     };
   }
 
